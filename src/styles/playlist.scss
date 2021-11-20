@@ -1,0 +1,58 @@
+#playlist {
+  width: 100%;
+  height: 88%;
+  margin-top: 60px;
+  .item {
+    position: relative;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    i {
+      cursor: pointer;
+    }
+    .album-info {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      .lp {
+        font-size: 30px;
+        margin-right: 12px;
+      }
+      .meta-info {
+        display: flex;
+        flex-direction: column;
+        .title {
+          font-weight: 500;
+          margin-bottom: 4px;
+          font-size: 16px;
+        }
+        .info {
+          font-size: 14px;
+        }
+      }
+    }
+    transition: all 0.2s ease-in-out;
+    .modal {
+      position: absolute;
+      right: 30px;
+      top: 23px;
+      padding: 4px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      p {
+        user-select: none;
+        font-weight: 600;
+        font-size: 18px;
+        cursor: pointer;
+      }
+      p:first-child {
+        margin-right: 14px;
+      }
+    }
+  }
+}
