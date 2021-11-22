@@ -1,8 +1,10 @@
 import "../styles/playlist.scss";
+import { useHistory } from "react-router-dom";
 
 import { PlayListIprops } from "../App";
 
 const PlayList: React.FC<PlayListIprops> = function (props): JSX.Element {
+  const history = useHistory();
   return (
     <div id="playlist">
       {props.album.map(({ id, title, info, active }) => {
@@ -23,13 +25,21 @@ const PlayList: React.FC<PlayListIprops> = function (props): JSX.Element {
             ></i>
             {active === true ? (
               <div className="modal">
-                <p>편집</p>
+                <p
+                  onClick={() => {
+                    props.onModal(id);
+                    history.push(`/playlist/${id}`);
+                  }}
+                >
+                  편집
+                </p>
                 <p>제거</p>
               </div>
             ) : null}
           </section>
         );
       })}
+      <i className="fas fa-plus plus-album"></i>
     </div>
   );
 };

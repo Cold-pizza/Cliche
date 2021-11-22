@@ -4,6 +4,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-bottom: 10px;
     .picture {
       width: 250px;
       height: 250px;
@@ -22,5 +23,21 @@
     .singer {
       font-size: 16px;
     }
+  }
+  audio::-webkit-media-controls-panel {
+    display: flex;
+    flex-direction: row;
+  }
+  audio::-webkit-media-controls-play-button {
+    display: block;
+  }
+  audio::-webkit-media-controls-mute-button {
+    color: blue;
+  }
+  audio::-webkit-media-controls-timeline {
+    width: 30px;
+  }
+  audio::-webkit-media-controls-fullscreen-volume-slider {
+    display: none;
   }
 }

@@ -22,6 +22,13 @@ const Setting = function () {
         </li>
         <li
           onClick={() => {
+            history.push("/musiclist");
+          }}
+        >
+          곡정보
+        </li>
+        <li
+          onClick={() => {
             history.push("/playlist");
           }}
         >

@@ -24,8 +24,11 @@ ul {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    i {
+    align-items: center;
+    font-size: 18px;
+    .edits {
       cursor: pointer;
+      user-select: none;
     }
     span {
       font-size: 20px;

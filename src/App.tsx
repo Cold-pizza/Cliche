@@ -10,6 +10,8 @@ import Setting from "./components/setting";
 import Notice from "./components/notice";
 import Version from "./components/version";
 import PlayList from "./components/playlist";
+import AlbumEdit from "./components/albumEdit";
+import MusicList from "./components/musiclist";
 
 //uesState type
 type Account = {
@@ -27,11 +29,14 @@ type PlayListType = {
   active: boolean;
 }[];
 
+type Music = { title: string; singer: string; url: string }[];
+
 // 함수 type
 type OnChange = (e: React.ChangeEvent<HTMLInputElement>) => void;
 type CreateUser = (email: string, password: string) => void;
-type Login = (email: string, password: string) => void;
+type LoginType = (email: string, password: string) => void;
 type OnModal = (id: number) => void;
+type UpLoading = () => void;
 
 // export signup.tsx
 export interface SignUpIprops {
@@ -41,7 +46,7 @@ export interface SignUpIprops {
 }
 //export login.tsx
 export interface LoginIprops {
-  login: Login;
+  login: LoginType;
   account: Account;
   onChange: OnChange;
 }
@@ -54,6 +59,7 @@ export interface PlayListIprops {
 export interface MainIprops {
   album: PlayListType;
   num: number;
+  nextNum: number;
 }
 // action album up, down
 export interface ActionIprops {
@@ -61,6 +67,26 @@ export interface ActionIprops {
     nextAlbum: () => void;
     beforeAlbum: () => void;
   };
+  changeMusic: {
+    nextMusic: () => void;
+    beforeMusic: () => void;
+  };
+}
+// albumEdit.tsx
+export interface AlbumEditIprops {
+  album: PlayListType;
+}
+
+// musiclist.tsx
+export interface MusicListIprops {
+  onChangeMusic: OnChange;
+  upLoadMusic: UpLoading;
+  on: boolean;
+  music: {
+    title: string;
+    singer: string;
+    url: string;
+  }[];
 }
 
 function App() {
@@ -71,6 +97,7 @@ function App() {
   // input.value를 account state에 저장.
   const onChange: SignUpIprops["onChange"] = function (e) {
     setAccount({ ...account, [e.target.name]: e.target.value });
+    console.log(account);
   };
   // 계정만들기 function
   const createUser: SignUpIprops["createUser"] = async function () {
@@ -102,14 +129,24 @@ function App() {
       });
   };
 
-  // Main 플레이리스트
+  // 음악 보관소.
+  const [music, setMusic] = useState<MusicListIprops["music"]>([
+    {
+      title: "Ive got this feeling",
+      singer: "Glen Check",
+      url: "sadfa",
+    },
+  ]);
+  // const [{ title, singer, url }] = music;
+  // Main Action 버튼 조절 state.
   let [num, setNum] = useState<MainIprops["num"]>(0);
-  console.log(num);
-  const [isBtn, setBtn] = useState(false);
+  let [nextNum, setNextNum] = useState<MainIprops["nextNum"]>(0);
+
+  // 나의 앨범 state.
   const [album, setAlbum] = useState<PlayListType>([
     {
       id: 0,
-      title: "untitled",
+      title: "favorite",
       info: "glen check, 한요한, 10cm..",
       playList: [
         {
@@ -119,6 +156,10 @@ function App() {
         {
           title: "람보르기니",
           singer: "Han Yo Han",
+        },
+        {
+          title: "paint it gold",
+          singer: "Glen Check",
         },
       ],
       active: false,
@@ -136,6 +177,10 @@ function App() {
           title: "YOU",
           singer: "김상민",
         },
+        {
+          title: "가시",
+          singer: "buzz",
+        },
       ],
       active: false,
     },
@@ -152,7 +197,7 @@ function App() {
   // action playlist up, down 버튼기능.
   const changeAlbum: ActionIprops["changeAlbum"] = {
     nextAlbum: function () {
-      if (num < album.length - 1) {
+      if (nextNum < album.length - 1) {
         setNum(num + 1);
       } else {
         return num;
@@ -166,10 +211,71 @@ function App() {
       }
     },
   };
+  // action playlist next, before Music 버튼기능.
+  const changeMusic: ActionIprops["changeMusic"] = {
+    nextMusic: function () {
+      if (nextNum < album[num].playList.length - 1) {
+        setNextNum(nextNum + 1);
+      } else {
+        return nextNum;
+      }
+    },
+    beforeMusic: function () {
+      if (nextNum > 0) {
+        setNextNum(nextNum - 1);
+      } else {
+        return nextNum;
+      }
+    },
+  };
+
+  // 음악 저장하고 체크하는 버튼state.
+  const [on, setOn] = useState<MusicListIprops["on"]>(false);
+  // 노래 저장하기.
+  const [musicFile, setFiles] = useState(null);
+  // firebase storage.
+  const storage = firebase.storage();
+  // 음악 파일 받아오는 함수.
+  const onChangeMusic: OnChange = (e) => {
+    setFiles(e.target.files[0]);
+    setOn(!on);
+  };
+
+  // 🎵노래 업로드 기능🎵.
+  const upLoadMusic: UpLoading = function () {
+    const storageRef = storage.ref();
+    const downLoadPath = storageRef.child("music/" + musicFile.name);
+    const upLoading = downLoadPath.put(musicFile);
+    upLoading.on(
+      "state_changed",
+      // 변화할 때, 동작하는 함수.
+      null,
+      //에러시 동작하는 함수.
+      (error) => {
+        console.log("실패사유: ", error);
+      },
+      // 성공시 동작하는 함수.
+      () => {
+        upLoading.snapshot.ref.getDownloadURL().then((url) => {
+          console.log("업로드 성공!");
+          const item = {
+            title: musicFile.name.split("-")[1],
+            singer: musicFile.name.split("-")[0],
+            url: url,
+          };
+          // firestore에 title,singer,url 보내는거 추가하기.
+          setMusic([...music, item]);
+          setOn(!on);
+          setFiles(null);
+          console.log("업로드된 경로는", url);
+        });
+      }
+    );
+  };
 
   return (
     <div className="App">
-      <Nav album={album} num={num} />
+      <Nav album={album} num={num} nextNum={nextNum} />
       <Route exact path="/">
         <Login login={login} account={account} onChange={onChange} />
       </Route>
@@ -177,8 +283,8 @@ function App() {
         <SignUp createUser={createUser} account={account} onChange={onChange} />
       </Route>
       <Route path="/main">
-        <Main album={album} num={num} />
-        <Actions changeAlbum={changeAlbum} />
+        <Main album={album} num={num} nextNum={nextNum} />
+        <Actions changeAlbum={changeAlbum} changeMusic={changeMusic} />
       </Route>
 
       <Route path="/setting">
@@ -192,8 +298,19 @@ function App() {
       <Route path="/version">
         <Version />
       </Route>
-      <Route path="/playlist">
+      <Route exact path="/playlist">
         <PlayList album={album} onModal={onModal} />
+      </Route>
+      <Route path="/playlist/:id">
+        <AlbumEdit album={album} />
+      </Route>
+      <Route path="/musiclist">
+        <MusicList
+          onChangeMusic={onChangeMusic}
+          upLoadMusic={upLoadMusic}
+          on={on}
+          music={music}
+        />
       </Route>
     </div>
   );
@@ -227,6 +344,16 @@ const Nav: React.FC<MainIprops> = function (props): JSX.Element {
       title: "앨범",
       site: "/playlist",
     },
+    {
+      id: 5,
+      title: "앨범편집",
+      site: "/playlist/:id",
+    },
+    {
+      id: 6,
+      title: "곡 리스트",
+      site: "/musiclist",
+    },
   ]);
   return (
     <div id="nav">
@@ -244,12 +371,16 @@ const Nav: React.FC<MainIprops> = function (props): JSX.Element {
                 ? (navList.title = props.album[props.num].title)
                 : navList.title}
             </span>
-            <i
-              onClick={() => {
-                history.push("/setting");
-              }}
-              className="fas fa-cog"
-            ></i>
+            {navList.site === "/playlist/:id" ? (
+              <p className="edits">완료</p>
+            ) : (
+              <i
+                onClick={() => {
+                  history.push("/setting");
+                }}
+                className="fas fa-cog edits"
+              ></i>
+            )}
           </Route>
         );
       })}
@@ -270,7 +401,12 @@ const Actions: React.FC<ActionIprops> = function (props): JSX.Element {
         ></i>
       </section>
       <section className="middle-btn">
-        <i className="fas fa-chevron-left"></i>
+        <i
+          onClick={() => {
+            props.changeMusic.beforeMusic();
+          }}
+          className="fas fa-chevron-left"
+        ></i>
         {play ? (
           <i
             onClick={() => {
@@ -287,7 +423,12 @@ const Actions: React.FC<ActionIprops> = function (props): JSX.Element {
           ></i>
         )}
 
-        <i className="fas fa-chevron-right"></i>
+        <i
+          onClick={() => {
+            props.changeMusic.nextMusic();
+          }}
+          className="fas fa-chevron-right"
+        ></i>
       </section>
       <section className="bottom-btn">
         <i
