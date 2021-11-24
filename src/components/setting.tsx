@@ -1,7 +1,8 @@
 import "../styles/setting.scss";
 import { useHistory } from "react-router-dom";
+import { SettingIprops } from "../App";
 
-const Setting = function () {
+const Setting: React.FC<SettingIprops> = function (props): JSX.Element {
   const history = useHistory();
   return (
     <div id="setting">
@@ -36,7 +37,13 @@ const Setting = function () {
         </li>
         <li>계정</li>
         <li>보안</li>
-        <li>로그아웃</li>
+        <li
+          onClick={() => {
+            props.logout();
+          }}
+        >
+          로그아웃
+        </li>
       </ul>
     </div>
   );

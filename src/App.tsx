@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./App.scss";
 import { Route, withRouter, useHistory } from "react-router-dom";
 import firebase from "./firebase";
+import { DocumentData } from "firebase/firestore";
 
 import SignUp from "./components/signup";
 import Login from "./components/login";
@@ -12,6 +13,7 @@ import Version from "./components/version";
 import PlayList from "./components/playlist";
 import AlbumEdit from "./components/albumEdit";
 import MusicList from "./components/musiclist";
+import AddMusic from "./components/addMusic";
 
 //uesState type
 type Account = {
@@ -28,15 +30,20 @@ type PlayListType = {
   }[];
   active: boolean;
 }[];
-
-type Music = { title: string; singer: string; url: string }[];
+type Music = {
+  title: string;
+  singer: string;
+  url: string;
+}[];
 
 // 함수 type
 type OnChange = (e: React.ChangeEvent<HTMLInputElement>) => void;
 type CreateUser = (email: string, password: string) => void;
 type LoginType = (email: string, password: string) => void;
+type LogOutType = () => void;
 type OnModal = (id: number) => void;
 type UpLoading = () => void;
+type AlbumRemove = (id: number) => void;
 
 // export signup.tsx
 export interface SignUpIprops {
@@ -54,12 +61,14 @@ export interface LoginIprops {
 export interface PlayListIprops {
   album: PlayListType;
   onModal: OnModal;
+  albumRemove: AlbumRemove;
 }
 // export main.tsx
 export interface MainIprops {
   album: PlayListType;
   num: number;
   nextNum: number;
+  music: Music;
 }
 // action album up, down
 export interface ActionIprops {
@@ -82,11 +91,16 @@ export interface MusicListIprops {
   onChangeMusic: OnChange;
   upLoadMusic: UpLoading;
   on: boolean;
-  music: {
-    title: string;
-    singer: string;
-    url: string;
-  }[];
+  music: Music;
+}
+
+// setting.tsx
+export interface SettingIprops {
+  logout: LogOutType;
+}
+// addmusic.tsx
+export interface AddMusicIprops {
+  music: Music;
 }
 
 function App() {
@@ -97,7 +111,7 @@ function App() {
   // input.value를 account state에 저장.
   const onChange: SignUpIprops["onChange"] = function (e) {
     setAccount({ ...account, [e.target.name]: e.target.value });
-    console.log(account);
+    // console.log(account);
   };
   // 계정만들기 function
   const createUser: SignUpIprops["createUser"] = async function () {
@@ -129,14 +143,40 @@ function App() {
       });
   };
 
+  //로그아웃 함수.
+  const logOut: SettingIprops["logout"] = function () {
+    firebase
+      .auth()
+      .signOut()
+      .then(() => {
+        console.log("로그아웃 하셨습니다.");
+        history.replace("/");
+      });
+  };
+
   // 음악 보관소.
-  const [music, setMusic] = useState<MusicListIprops["music"]>([
+  const [music, setMusic] = useState<Music>([
     {
-      title: "Ive got this feeling",
-      singer: "Glen Check",
-      url: "sadfa",
+      title: "",
+      singer: "",
+      url: "",
     },
   ]);
+  // firestore에서 음악 가져오기
+  useEffect(() => {
+    var arr: { title: string; singer: string; url: string }[] = [];
+    firebase
+      .firestore()
+      .collection("playList")
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc: DocumentData) => {
+          arr.push(doc.data());
+        });
+      });
+    setMusic(arr);
+  }, []);
+  console.log(music);
   // const [{ title, singer, url }] = music;
   // Main Action 버튼 조절 state.
   let [num, setNum] = useState<MainIprops["num"]>(0);
@@ -193,6 +233,14 @@ function App() {
       })
     );
   };
+  // 앨범 제거 함수.
+  const albumRemove: PlayListIprops["albumRemove"] = function (id) {
+    setAlbum(
+      album.filter((album) => {
+        return album.id !== id;
+      })
+    );
+  };
 
   // action playlist up, down 버튼기능.
   const changeAlbum: ActionIprops["changeAlbum"] = {
@@ -242,6 +290,7 @@ function App() {
   };
 
   // 🎵노래 업로드 기능🎵.
+  const nextId = useRef(-1);
   const upLoadMusic: UpLoading = function () {
     const storageRef = storage.ref();
     const downLoadPath = storageRef.child("music/" + musicFile.name);
@@ -249,7 +298,9 @@ function App() {
     upLoading.on(
       "state_changed",
       // 변화할 때, 동작하는 함수.
-      null,
+      (loading) => {
+        console.log("로딩중.." + loading);
+      },
       //에러시 동작하는 함수.
       (error) => {
         console.log("실패사유: ", error);
@@ -258,16 +309,34 @@ function App() {
       () => {
         upLoading.snapshot.ref.getDownloadURL().then((url) => {
           console.log("업로드 성공!");
-          const item = {
-            title: musicFile.name.split("-")[1],
-            singer: musicFile.name.split("-")[0],
-            url: url,
-          };
-          // firestore에 title,singer,url 보내는거 추가하기.
-          setMusic([...music, item]);
+          // const item = {
+          //   title: musicFile.name.split("-")[1],
+          //   singer: musicFile.name.split("-")[0],
+          //   url: url,
+          // };
+          // // firestore에 title,singer,url 보내는거 추가하기.
+          // setMusic([...music, item]);
           setOn(!on);
-          setFiles(null);
-          console.log("업로드된 경로는", url);
+          // setFiles(null);
+          // console.log("업로드된 경로는", url);
+
+          // firestore에 text로 저장.
+          const db = firebase.firestore();
+          db.collection("playList")
+            .doc(musicFile.name)
+            .set({
+              title: musicFile.name.split("-")[1],
+              singer: musicFile.name.split("-")[0],
+              url: url,
+            });
+          // 잘 저장 되었는지 출력.
+          // db.collection("playList")
+          //   .get()
+          //   .then((result) => {
+          //     result.forEach((doc) => {
+          //       console.log(doc.data());
+          //     });
+          //   });
         });
       }
     );
@@ -275,7 +344,7 @@ function App() {
 
   return (
     <div className="App">
-      <Nav album={album} num={num} nextNum={nextNum} />
+      <Nav album={album} num={num} nextNum={nextNum} music={music} />
       <Route exact path="/">
         <Login login={login} account={account} onChange={onChange} />
       </Route>
@@ -283,12 +352,12 @@ function App() {
         <SignUp createUser={createUser} account={account} onChange={onChange} />
       </Route>
       <Route path="/main">
-        <Main album={album} num={num} nextNum={nextNum} />
+        <Main album={album} num={num} nextNum={nextNum} music={music} />
         <Actions changeAlbum={changeAlbum} changeMusic={changeMusic} />
       </Route>
 
       <Route path="/setting">
-        <Setting />
+        <Setting logout={logOut} />
       </Route>
 
       {/* setting */}
@@ -299,10 +368,13 @@ function App() {
         <Version />
       </Route>
       <Route exact path="/playlist">
-        <PlayList album={album} onModal={onModal} />
+        <PlayList album={album} onModal={onModal} albumRemove={albumRemove} />
       </Route>
       <Route path="/playlist/:id">
         <AlbumEdit album={album} />
+      </Route>
+      <Route path="/addmusic/:id">
+        <AddMusic music={music} />
       </Route>
       <Route path="/musiclist">
         <MusicList
@@ -353,6 +425,11 @@ const Nav: React.FC<MainIprops> = function (props): JSX.Element {
       id: 6,
       title: "곡 리스트",
       site: "/musiclist",
+    },
+    {
+      id: 7,
+      title: "앨범노래추가",
+      site: "/addmusic/:id",
     },
   ]);
   return (

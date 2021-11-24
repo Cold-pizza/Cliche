@@ -1,4 +1,4 @@
-#music-list {
+#add-music {
   width: 100%;
   margin-top: 60px;
   height: 88%;
@@ -12,7 +12,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px 0;
-    .sing-info {
+    .music-info {
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -33,7 +33,7 @@
         color: rgba(0, 0, 0, 0.7);
       }
     }
-    .remove-btn {
+    .check-box {
       cursor: pointer;
     }
   }
@@ -47,11 +47,5 @@
     background: #698eff;
     color: white;
     border-radius: 50%;
-  }
-  #music-file {
-    display: none;
-  }
-  #label {
-    margin-right: 40px;
   }
 }

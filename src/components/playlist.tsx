@@ -33,7 +33,13 @@ const PlayList: React.FC<PlayListIprops> = function (props): JSX.Element {
                 >
                   편집
                 </p>
-                <p>제거</p>
+                <p
+                  onClick={() => {
+                    props.albumRemove(id);
+                  }}
+                >
+                  제거
+                </p>
               </div>
             ) : null}
           </section>

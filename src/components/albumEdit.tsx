@@ -1,8 +1,9 @@
 import "../styles/albumEdit.scss";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import { AlbumEditIprops } from "../App";
 
 const AlbumEdit: React.FC<AlbumEditIprops> = function (props): JSX.Element {
+  const history = useHistory();
   const { id } = useParams<{ id: string | undefined }>();
   const ids = Number(id);
   return (
@@ -37,7 +38,12 @@ const AlbumEdit: React.FC<AlbumEditIprops> = function (props): JSX.Element {
           );
         })}
       </section>
-      <i className="fas fa-plus plus-album"></i>
+      <i
+        onClick={() => {
+          history.push(`/addmusic/${id}`);
+        }}
+        className="fas fa-plus plus-album"
+      ></i>
     </div>
   );
 };

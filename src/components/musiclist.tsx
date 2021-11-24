@@ -22,7 +22,6 @@ const MusicList: React.FC<MusicListIprops> = function (props): JSX.Element {
       <label id="label" htmlFor="music-file">
         <i className="fas fa-plus plus-music"></i>
       </label>
-
       <i
         style={{ display: props.on ? "block" : "none" }}
         className="fas fa-check plus-music"
@@ -30,10 +29,8 @@ const MusicList: React.FC<MusicListIprops> = function (props): JSX.Element {
           props.upLoadMusic();
         }}
       ></i>
-
       <input type="file" onChange={props.onChangeMusic} id="music-file" />
     </div>
   );
 };
-
 export default MusicList;
