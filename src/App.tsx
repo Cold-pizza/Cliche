@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import "./App.scss";
 import { Route, withRouter, useHistory } from "react-router-dom";
 import firebase from "./firebase";
-import { DocumentData } from "firebase/firestore";
+// import { DocumentData } from "firebase/firestore";
 
 import SignUp from "./components/signup";
 import Login from "./components/login";
@@ -14,6 +14,9 @@ import PlayList from "./components/playlist";
 import AlbumEdit from "./components/albumEdit";
 import MusicList from "./components/musiclist";
 import AddMusic from "./components/addMusic";
+import AddAlbum from "./components/addAlbum";
+
+import FirebaseFirestore from "@google-cloud/firestore";
 
 //uesState type
 type Account = {
@@ -38,6 +41,7 @@ type Music = {
 
 // 함수 type
 type OnChange = (e: React.ChangeEvent<HTMLInputElement>) => void;
+type OnChangeAlbum = (e: React.ChangeEvent<HTMLInputElement>) => void;
 type CreateUser = (email: string, password: string) => void;
 type LoginType = (email: string, password: string) => void;
 type LogOutType = () => void;
@@ -69,6 +73,7 @@ export interface MainIprops {
   num: number;
   nextNum: number;
   music: Music;
+  localMusic: Music;
 }
 // action album up, down
 export interface ActionIprops {
@@ -101,6 +106,22 @@ export interface SettingIprops {
 // addmusic.tsx
 export interface AddMusicIprops {
   music: Music;
+}
+// addalbum.tsx
+export interface AddAlbumIprops {
+  album: PlayListType;
+  onChangeAlbum: OnChangeAlbum;
+  test: {
+    name: string;
+    info: string;
+    id: number;
+    playList: {
+      title: string;
+      singer: string;
+    }[];
+    active: boolean;
+  }
+  addAlbum: ()=> void;
 }
 
 function App() {
@@ -154,7 +175,13 @@ function App() {
       });
   };
 
-  // 음악 보관소.
+  // 로컬스토리지에 저장한 playList불러오기.
+  const [localMusic, setLocalMusic] = useState<Music>([{
+    title: "",
+    singer: "",
+    url: "",
+  }])
+  // firebase에서 음악 받아온 보관소.
   const [music, setMusic] = useState<Music>([
     {
       title: "",
@@ -163,20 +190,28 @@ function App() {
     },
   ]);
   // firestore에서 음악 가져오기
-  useEffect(() => {
-    var arr: { title: string; singer: string; url: string }[] = [];
-    firebase
-      .firestore()
-      .collection("playList")
-      .get()
-      .then((snapshot) => {
-        snapshot.forEach((doc: DocumentData) => {
-          arr.push(doc.data());
-        });
-      });
-    setMusic(arr);
-  }, []);
-  console.log(music);
+useEffect(()=> {
+  var arr: { title: string; singer: string; url: string }[] = [];
+  const fireStorePlayList:FirebaseFirestore.DocumentData = firebase
+  .firestore()
+  .collection("playList")
+  .get();
+  
+  fireStorePlayList.then((snapshot: FirebaseFirestore.DocumentData[]) => {
+    snapshot.forEach((doc:FirebaseFirestore.DocumentData) => {
+      return arr.push(doc.data());
+    });
+  });
+  setMusic(arr);
+}, [])
+// console.log(music)
+// 로컬스토리지에 저장하기. 
+    // localStorage.setItem("playLists", JSON.stringify(music));
+    // const getMusic = JSON.parse(localStorage.getItem("playLists"));
+    // setLocalMusic(getMusic);
+
+  
+  // console.log(localMusic);
   // const [{ title, singer, url }] = music;
   // Main Action 버튼 조절 state.
   let [num, setNum] = useState<MainIprops["num"]>(0);
@@ -225,6 +260,13 @@ function App() {
       active: false,
     },
   ]);
+  const [test, setTest] = useState<AddAlbumIprops['test']>({ id:3, name:'', playList:[{ title: "", singer: "" }], info:"", active: false });
+    const onChangeAlbum = function(e:React.ChangeEvent<HTMLInputElement>) {
+        const { name, value } = e.target;
+        setTest({ ...test, [name]: value })
+    }
+    const { id, name, playList, info, active } = test;
+ 
   // 앨범설정 추가, 삭제 모달.
   const onModal: OnModal = function (id) {
     setAlbum(
@@ -233,6 +275,13 @@ function App() {
       })
     );
   };
+  let [nextId, setNextId] = useState<number>(3);
+  const addAlbum:AddAlbumIprops['addAlbum'] = function() {
+    const item = { title: test.name, id, playList, info, active };
+    setAlbum([ ...album, item ])
+    setTest({ id: nextId, name: "", playList, info:"", active: false });
+    setNextId(nextId + 1);
+  }
   // 앨범 제거 함수.
   const albumRemove: PlayListIprops["albumRemove"] = function (id) {
     setAlbum(
@@ -290,7 +339,6 @@ function App() {
   };
 
   // 🎵노래 업로드 기능🎵.
-  const nextId = useRef(-1);
   const upLoadMusic: UpLoading = function () {
     const storageRef = storage.ref();
     const downLoadPath = storageRef.child("music/" + musicFile.name);
@@ -298,16 +346,18 @@ function App() {
     upLoading.on(
       "state_changed",
       // 변화할 때, 동작하는 함수.
-      (loading) => {
+      (loading: any) => {
+        // error, loading 타입 변경하기..
         console.log("로딩중.." + loading);
       },
       //에러시 동작하는 함수.
-      (error) => {
+      (error: any) => {
+        // 타입 변경!!
         console.log("실패사유: ", error);
       },
       // 성공시 동작하는 함수.
       () => {
-        upLoading.snapshot.ref.getDownloadURL().then((url) => {
+        upLoading.snapshot.ref.getDownloadURL().then((url: any) => {
           console.log("업로드 성공!");
           // const item = {
           //   title: musicFile.name.split("-")[1],
@@ -344,7 +394,7 @@ function App() {
 
   return (
     <div className="App">
-      <Nav album={album} num={num} nextNum={nextNum} music={music} />
+      <Nav album={album} num={num} nextNum={nextNum} music={music} localMusic={localMusic} />
       <Route exact path="/">
         <Login login={login} account={account} onChange={onChange} />
       </Route>
@@ -352,37 +402,40 @@ function App() {
         <SignUp createUser={createUser} account={account} onChange={onChange} />
       </Route>
       <Route path="/main">
-        <Main album={album} num={num} nextNum={nextNum} music={music} />
+        <Main album={album} num={num} nextNum={nextNum} music={music} localMusic={localMusic} />
         <Actions changeAlbum={changeAlbum} changeMusic={changeMusic} />
       </Route>
 
-      <Route path="/setting">
+      <Route exact path="/setting">
         <Setting logout={logOut} />
       </Route>
 
       {/* setting */}
-      <Route path="/notice">
+      <Route path="/setting/notice">
         <Notice />
       </Route>
-      <Route path="/version">
+      <Route path="/setting/version">
         <Version />
       </Route>
-      <Route exact path="/playlist">
+      <Route exact path="/setting/playlist">
         <PlayList album={album} onModal={onModal} albumRemove={albumRemove} />
       </Route>
-      <Route path="/playlist/:id">
+      <Route path="/setting/playlist/:id">
         <AlbumEdit album={album} />
       </Route>
-      <Route path="/addmusic/:id">
+      <Route path="/setting/addmusic/:id">
         <AddMusic music={music} />
       </Route>
-      <Route path="/musiclist">
+      <Route path="/setting/musiclist">
         <MusicList
           onChangeMusic={onChangeMusic}
           upLoadMusic={upLoadMusic}
           on={on}
           music={music}
         />
+      </Route>
+      <Route path="/setting/addalbum">
+        <AddAlbum album={album} onChangeAlbum={onChangeAlbum} test={test} addAlbum={addAlbum} />
       </Route>
     </div>
   );
@@ -404,60 +457,68 @@ const Nav: React.FC<MainIprops> = function (props): JSX.Element {
     {
       id: 2,
       title: "공지사항",
-      site: "/notice",
+      site: "/setting/notice",
     },
     {
       id: 3,
       title: "버전정보",
-      site: "/version",
+      site: "/setting/version",
     },
     {
       id: 4,
       title: "앨범",
-      site: "/playlist",
+      site: "/setting/playlist",
     },
     {
       id: 5,
       title: "앨범편집",
-      site: "/playlist/:id",
+      site: "/setting/playlist/:id",
     },
     {
       id: 6,
       title: "곡 리스트",
-      site: "/musiclist",
+      site: "/setting/musiclist",
     },
     {
       id: 7,
       title: "앨범노래추가",
-      site: "/addmusic/:id",
+      site: "/setting/addmusic/:id",
     },
+    {
+      id: 8,
+      title: "앨범추가",
+      site: "/setting/addalbum",
+    }
   ]);
   return (
     <div id="nav">
       {navList.map((navList) => {
         return (
           <Route exact path={navList.site}>
-            <i
+            <div style={{ width: '20px' }}>
+
+            { navList.site === '/main' ? null:<i
               onClick={() => {
                 history.goBack();
               }}
               className="fas fa-chevron-left"
-            ></i>
+              ></i>}
+              </div>
             <span>
               {navList.site === "/main"
                 ? (navList.title = props.album[props.num].title)
                 : navList.title}
             </span>
-            {navList.site === "/playlist/:id" ? (
-              <p className="edits">완료</p>
-            ) : (
+            <div style={{ width: '20px' }}>
+
+            {navList.site === "/main" ?
               <i
-                onClick={() => {
-                  history.push("/setting");
-                }}
-                className="fas fa-cog edits"
-              ></i>
-            )}
+              onClick={() => {
+                history.push("/setting");
+              }}
+              className="fas fa-cog edits"
+              ></i>  : ( navList.site === "/setting/playlist/:id" ? <p className="edits">완료</p> : null)}
+                  </div>
           </Route>
         );
       })}

@@ -40,7 +40,7 @@ const AlbumEdit: React.FC<AlbumEditIprops> = function (props): JSX.Element {
       </section>
       <i
         onClick={() => {
-          history.push(`/addmusic/${id}`);
+          history.push(`/setting/addmusic/${id}`);
         }}
         className="fas fa-plus plus-album"
       ></i>

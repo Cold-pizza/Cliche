@@ -1,7 +1,7 @@
 import firebase from "firebase";
 import "firebase/firestore";
 import "firebase/auth";
-import * as admin from "firebase-admin";
+
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,

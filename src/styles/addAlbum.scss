@@ -1,0 +1,45 @@
+#add-album {
+  width: 100%;
+  margin-top: 60px;
+  height: 88%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  .album-form {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .lp {
+      font-size: 45px;
+      margin-right: 12px;
+    }
+    .input-form {
+      display: flex;
+      flex-direction: column;
+      input {
+        font-size: 18px;
+        margin-bottom: 6px;
+        outline: none;
+        border: none;
+        background-color: #eee;
+        padding: 6px 4px;
+        border-radius: 6px;
+      }
+      span {
+        font-size: 18px;
+      }
+    }
+  }
+  .check-box {
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    bottom: 30px;
+    padding: 12px;
+    background: #698eff;
+    color: white;
+    border-radius: 50%;
+  }
+}

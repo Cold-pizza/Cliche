@@ -9,28 +9,28 @@ const Setting: React.FC<SettingIprops> = function (props): JSX.Element {
       <ul>
         <li
           onClick={() => {
-            history.push("/notice");
+            history.push("/setting/notice");
           }}
         >
           공지사항
         </li>
         <li
           onClick={() => {
-            history.push("/version");
+            history.push("/setting/version");
           }}
         >
           버전정보
         </li>
         <li
           onClick={() => {
-            history.push("/musiclist");
+            history.push("/setting/musiclist");
           }}
         >
           곡정보
         </li>
         <li
           onClick={() => {
-            history.push("/playlist");
+            history.push("/setting/playlist");
           }}
         >
           앨범설정

@@ -28,7 +28,7 @@ const PlayList: React.FC<PlayListIprops> = function (props): JSX.Element {
                 <p
                   onClick={() => {
                     props.onModal(id);
-                    history.push(`/playlist/${id}`);
+                    history.push(`/setting/playlist/${id}`);
                   }}
                 >
                   편집
@@ -45,7 +45,9 @@ const PlayList: React.FC<PlayListIprops> = function (props): JSX.Element {
           </section>
         );
       })}
-      <i className="fas fa-plus plus-album"></i>
+      <i onClick={()=>{
+        history.push("/setting/addalbum")
+      }} className="fas fa-plus plus-album"></i>
     </div>
   );
 };
