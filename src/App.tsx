@@ -16,7 +16,7 @@ import MusicList from "./components/musiclist";
 import AddMusic from "./components/addMusic";
 import AddAlbum from "./components/addAlbum";
 
-import FirebaseFirestore from "@google-cloud/firestore";
+import FirebaseFirestore, { DocumentData } from "@google-cloud/firestore";
 
 //uesState type
 type Account = {
@@ -38,6 +38,7 @@ type Music = {
   singer: string;
   url: string;
 }[];
+type Any = any;
 
 // 함수 type
 type OnChange = (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -48,6 +49,8 @@ type LogOutType = () => void;
 type OnModal = (id: number) => void;
 type UpLoading = () => void;
 type AlbumRemove = (id: number) => void;
+type PlayTheMusic = () => void;
+type PauseTheMusic = () => void;
 
 // export signup.tsx
 export interface SignUpIprops {
@@ -73,7 +76,8 @@ export interface MainIprops {
   num: number;
   nextNum: number;
   music: Music;
-  localMusic: Music;
+  player: Any;
+  source: Any;
 }
 // action album up, down
 export interface ActionIprops {
@@ -85,6 +89,8 @@ export interface ActionIprops {
     nextMusic: () => void;
     beforeMusic: () => void;
   };
+  playTheMusic: PlayTheMusic;
+  pauseTheMusic: PauseTheMusic;
 }
 // albumEdit.tsx
 export interface AlbumEditIprops {
@@ -148,22 +154,39 @@ function App() {
         console.log("가입 실패!");
       });
   };
+  // firebase에서 음악 받아온 보관소.
+  const [music, setMusic] = useState<Music>([]);
+  const [localMusic, setLocalMusic] = useState<Music>([]);
 
   // 로그인 기능
   const login: LoginIprops["login"] = function (email, password) {
-    firebase
+     firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
-      .then(() => {
-        console.log("로그인성공!");
+      .then(async () => {
         setAccount({ email: "", password: "" });
-        history.push("/main");
-      })
-      .catch(() => {
-        console.log("다시 입력해주세요..");
-      });
-  };
-
+        async function getMusic() {
+          var arr: { title: string; singer: string; url: string }[] = [];
+          await firebase
+          .firestore()
+          .collection("playList")
+          .get().then((snapshot) => {
+            snapshot.forEach((doc:DocumentData) => {
+              return arr.push(doc.data());
+            });
+          });
+          // await console.log(arr);
+          await setMusic(arr);
+        }
+       await getMusic();
+        console.log("로그인성공!");
+       await history.push("/main");
+        })
+        .catch(() => {
+          console.log("다시 입력해주세요..");
+        });
+      };
+      console.log(music);
   //로그아웃 함수.
   const logOut: SettingIprops["logout"] = function () {
     firebase
@@ -175,44 +198,7 @@ function App() {
       });
   };
 
-  // 로컬스토리지에 저장한 playList불러오기.
-  const [localMusic, setLocalMusic] = useState<Music>([{
-    title: "",
-    singer: "",
-    url: "",
-  }])
-  // firebase에서 음악 받아온 보관소.
-  const [music, setMusic] = useState<Music>([
-    {
-      title: "",
-      singer: "",
-      url: "",
-    },
-  ]);
-  // firestore에서 음악 가져오기
-useEffect(()=> {
-  var arr: { title: string; singer: string; url: string }[] = [];
-  const fireStorePlayList:FirebaseFirestore.DocumentData = firebase
-  .firestore()
-  .collection("playList")
-  .get();
-  
-  fireStorePlayList.then((snapshot: FirebaseFirestore.DocumentData[]) => {
-    snapshot.forEach((doc:FirebaseFirestore.DocumentData) => {
-      return arr.push(doc.data());
-    });
-  });
-  setMusic(arr);
-}, [])
-// console.log(music)
-// 로컬스토리지에 저장하기. 
-    // localStorage.setItem("playLists", JSON.stringify(music));
-    // const getMusic = JSON.parse(localStorage.getItem("playLists"));
-    // setLocalMusic(getMusic);
 
-  
-  // console.log(localMusic);
-  // const [{ title, singer, url }] = music;
   // Main Action 버튼 조절 state.
   let [num, setNum] = useState<MainIprops["num"]>(0);
   let [nextNum, setNextNum] = useState<MainIprops["nextNum"]>(0);
@@ -296,6 +282,7 @@ useEffect(()=> {
     nextAlbum: function () {
       if (nextNum < album.length - 1) {
         setNum(num + 1);
+        player.current.load();
       } else {
         return num;
       }
@@ -303,6 +290,7 @@ useEffect(()=> {
     beforeAlbum: function () {
       if (num > 0) {
         setNum(num - 1);
+        player.current.load();
       } else {
         return num;
       }
@@ -311,8 +299,9 @@ useEffect(()=> {
   // action playlist next, before Music 버튼기능.
   const changeMusic: ActionIprops["changeMusic"] = {
     nextMusic: function () {
-      if (nextNum < album[num].playList.length - 1) {
+      if (nextNum < music.length - 1) {
         setNextNum(nextNum + 1);
+        player.current.load();
       } else {
         return nextNum;
       }
@@ -320,11 +309,25 @@ useEffect(()=> {
     beforeMusic: function () {
       if (nextNum > 0) {
         setNextNum(nextNum - 1);
+        player.current.load();
       } else {
         return nextNum;
       }
     },
   };
+  // audio 지정 ref.
+  const player = useRef<Any>();
+  const source = useRef<Any>();
+
+  // 음악 원격 재생 함수.
+  const playTheMusic: PlayTheMusic = function() {
+    // player.current.load();
+    player.current.play();
+  }
+  const pauseTheMusic: PauseTheMusic = function() {
+    // player.current.load();
+    player.current.pause();
+  }
 
   // 음악 저장하고 체크하는 버튼state.
   const [on, setOn] = useState<MusicListIprops["on"]>(false);
@@ -338,7 +341,7 @@ useEffect(()=> {
     setOn(!on);
   };
 
-  // 🎵노래 업로드 기능🎵.
+  // 🎵노래 업로드 기능🎵.(firestore에 text로 저장하기)
   const upLoadMusic: UpLoading = function () {
     const storageRef = storage.ref();
     const downLoadPath = storageRef.child("music/" + musicFile.name);
@@ -346,18 +349,18 @@ useEffect(()=> {
     upLoading.on(
       "state_changed",
       // 변화할 때, 동작하는 함수.
-      (loading: any) => {
+      (loading) => {
         // error, loading 타입 변경하기..
         console.log("로딩중.." + loading);
       },
       //에러시 동작하는 함수.
-      (error: any) => {
+      (error) => {
         // 타입 변경!!
         console.log("실패사유: ", error);
       },
       // 성공시 동작하는 함수.
       () => {
-        upLoading.snapshot.ref.getDownloadURL().then((url: any) => {
+        upLoading.snapshot.ref.getDownloadURL().then((url) => {
           console.log("업로드 성공!");
           // const item = {
           //   title: musicFile.name.split("-")[1],
@@ -392,9 +395,20 @@ useEffect(()=> {
     );
   };
 
+    useEffect(()=>{
+      // 노래 업로드 시킬 때마다 로컬스토리지 업데이트 해주세요~
+      var arr: { title: string; singer: string; url: string }[] = [];
+      firebase.firestore().collection("playList").get().then((snapshot)=>{
+        snapshot.forEach((doc:DocumentData)=> {
+          return arr.push(doc.data());
+        })
+      })
+      window.localStorage.setItem("playLists", JSON.stringify(arr));
+  }, [upLoadMusic]);
+
   return (
     <div className="App">
-      <Nav album={album} num={num} nextNum={nextNum} music={music} localMusic={localMusic} />
+      <Nav player={player} source={source} album={album} num={num} nextNum={nextNum} music={music} />
       <Route exact path="/">
         <Login login={login} account={account} onChange={onChange} />
       </Route>
@@ -402,8 +416,8 @@ useEffect(()=> {
         <SignUp createUser={createUser} account={account} onChange={onChange} />
       </Route>
       <Route path="/main">
-        <Main album={album} num={num} nextNum={nextNum} music={music} localMusic={localMusic} />
-        <Actions changeAlbum={changeAlbum} changeMusic={changeMusic} />
+        <Main source={source} player={player} album={album} num={num} nextNum={nextNum} music={music} />
+        <Actions playTheMusic={playTheMusic} pauseTheMusic={pauseTheMusic} changeAlbum={changeAlbum} changeMusic={changeMusic} />
       </Route>
 
       <Route exact path="/setting">
@@ -528,6 +542,7 @@ const Nav: React.FC<MainIprops> = function (props): JSX.Element {
 
 const Actions: React.FC<ActionIprops> = function (props): JSX.Element {
   const [play, setPlay] = useState(false);
+  
   return (
     <div id="actions">
       <section className="up-btn">
@@ -549,15 +564,18 @@ const Actions: React.FC<ActionIprops> = function (props): JSX.Element {
           <i
             onClick={() => {
               setPlay(!play);
+              props.pauseTheMusic();
+              // 누르면 오디오 플레이 버튼 조작하기.
             }}
-            className="fas fa-pause play-btn"
+            className="fas fa-pause play-btn pause"
           ></i>
         ) : (
           <i
             onClick={() => {
               setPlay(!play);
+              props.playTheMusic();
             }}
-            className="fas fa-play play-btn"
+            className="fas fa-play play-btn play"
           ></i>
         )}
 
