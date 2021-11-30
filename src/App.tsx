@@ -2,8 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import "./App.scss";
 import { Route, withRouter, useHistory } from "react-router-dom";
 import firebase from "./firebase";
-// import { DocumentData } from "firebase/firestore";
 
+// import Component
 import SignUp from "./components/signup";
 import Login from "./components/login";
 import Main from "./components/main";
@@ -18,8 +18,8 @@ import AddAlbum from "./components/addAlbum";
 
 import FirebaseFirestore, { DocumentData } from "@google-cloud/firestore";
 
-//uesState type
-type Account = {
+//useState type
+type AccountType = {
   email: string;
   password: string;
 };
@@ -33,91 +33,14 @@ type PlayListType = {
   }[];
   active: boolean;
 }[];
-type Music = {
+type MusicType = {
   title: string;
   singer: string;
   url: string;
 }[];
-type Any = any;
+type AnyType = any;
 
-// 함수 type
-type OnChange = (e: React.ChangeEvent<HTMLInputElement>) => void;
-type OnChangeAlbum = (e: React.ChangeEvent<HTMLInputElement>) => void;
-type CreateUser = (email: string, password: string) => void;
-type LoginType = (email: string, password: string) => void;
-type LogOutType = () => void;
-type OnModal = (id: number) => void;
-type UpLoading = () => void;
-type AlbumRemove = (id: number) => void;
-type PlayTheMusic = () => void;
-type PauseTheMusic = () => void;
-
-// export signup.tsx
-export interface SignUpIprops {
-  createUser: CreateUser;
-  account: Account;
-  onChange: OnChange;
-}
-//export login.tsx
-export interface LoginIprops {
-  login: LoginType;
-  account: Account;
-  onChange: OnChange;
-}
-//export playlist.tsx
-export interface PlayListIprops {
-  album: PlayListType;
-  onModal: OnModal;
-  albumRemove: AlbumRemove;
-}
-// export main.tsx
-export interface MainIprops {
-  album: PlayListType;
-  num: number;
-  nextNum: number;
-  music: Music;
-  player: Any;
-  source: Any;
-}
-// action album up, down
-export interface ActionIprops {
-  changeAlbum: {
-    nextAlbum: () => void;
-    beforeAlbum: () => void;
-  };
-  changeMusic: {
-    nextMusic: () => void;
-    beforeMusic: () => void;
-  };
-  playTheMusic: PlayTheMusic;
-  pauseTheMusic: PauseTheMusic;
-}
-// albumEdit.tsx
-export interface AlbumEditIprops {
-  album: PlayListType;
-}
-
-// musiclist.tsx
-export interface MusicListIprops {
-  onChangeMusic: OnChange;
-  upLoadMusic: UpLoading;
-  on: boolean;
-  music: Music;
-}
-
-// setting.tsx
-export interface SettingIprops {
-  logout: LogOutType;
-}
-// addmusic.tsx
-export interface AddMusicIprops {
-  music: Music;
-}
-// addalbum.tsx
-export interface AddAlbumIprops {
-  album: PlayListType;
-  onChangeAlbum: OnChangeAlbum;
-  test: {
+type AddAlbumStateType = {
     name: string;
     info: string;
     id: number;
@@ -127,20 +50,108 @@ export interface AddAlbumIprops {
     }[];
     active: boolean;
   }
-  addAlbum: ()=> void;
+
+// 함수 type
+type OnChangeType = (e: React.ChangeEvent<HTMLInputElement>) => void;
+type OnChangeAlbumType = (e: React.ChangeEvent<HTMLInputElement>) => void;
+type CreateUserType = (email: string, password: string) => void;
+type LoginType = (email: string, password: string) => void;
+type LogOutType = () => void;
+type OnModalType = (id: number) => void;
+type UpLoadingType = () => void;
+type AlbumRemoveType = (id: number) => void;
+type PlayTheMusicType = () => void;
+type PauseTheMusicType = () => void;
+type AddAlbumType = () => void;
+
+// export signup.tsx
+export interface SignUpIprops {
+  createUser: CreateUserType;
+  account: AccountType;
+  onChange: OnChangeType;
 }
 
+//export login.tsx
+export interface LoginIprops {
+  login: LoginType;
+  account: AccountType;
+  onChange: OnChangeType;
+}
+
+//export playlist.tsx
+export interface PlayListIprops {
+  album: PlayListType;
+  onModal: OnModalType;
+  albumRemove: AlbumRemoveType;
+}
+
+// export main.tsx
+export interface MainIprops {
+  album: PlayListType;
+  num: number;
+  nextNum: number;
+  music: MusicType;
+  player: AnyType;
+  source: AnyType;
+}
+
+// Action 컴포넌트 컨트롤러 type
+export interface ActionIprops {
+  changeAlbum: {
+    nextAlbum: () => void;
+    beforeAlbum: () => void;
+  };
+  changeMusic: {
+    nextMusic: () => void;
+    beforeMusic: () => void;
+  };
+  playTheMusic: PlayTheMusicType;
+  pauseTheMusic: PauseTheMusicType;
+}
+
+// albumEdit.tsx
+export interface AlbumEditIprops {
+  album: PlayListType;
+}
+
+// musiclist.tsx
+export interface MusicListIprops {
+  onChangeMusic: OnChangeType;
+  upLoadMusic: UpLoadingType;
+  on: boolean;
+  music: MusicType;
+}
+
+// setting.tsx
+export interface SettingIprops {
+  logout: LogOutType;
+}
+
+// addMusic.tsx
+export interface AddMusicIprops {
+  music: MusicType;
+}
+
+// addAlbum.tsx
+export interface AddAlbumIprops {
+  album: PlayListType;
+  onChangeAlbum: OnChangeAlbumType;
+  addAlbumState: AddAlbumStateType;
+  addAlbum: AddAlbumType;
+}
+
+// App Component
 function App() {
   const history = useHistory();
-  const [account, setAccount] = useState<Account>({ email: "", password: "" });
+  const [account, setAccount] = useState<AccountType>({ email: "", password: "" });
   const { email, password } = account;
 
   // input.value를 account state에 저장.
   const onChange: SignUpIprops["onChange"] = function (e) {
     setAccount({ ...account, [e.target.name]: e.target.value });
-    // console.log(account);
   };
-  // 계정만들기 function
+
+  // 계정만드는 함수.
   const createUser: SignUpIprops["createUser"] = async function () {
     await firebase
       .auth()
@@ -154,17 +165,18 @@ function App() {
         console.log("가입 실패!");
       });
   };
-  // firebase에서 음악 받아온 보관소.
-  const [music, setMusic] = useState<Music>([]);
-  const [localMusic, setLocalMusic] = useState<Music>([]);
 
-  // 로그인 기능
+  // firebase에서 음악 받아온 보관소.
+  const [music, setMusic] = useState<MusicType>([]);
+
+  // 로그인 함수.
   const login: LoginIprops["login"] = function (email, password) {
      firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
       .then(async () => {
         setAccount({ email: "", password: "" });
+        // 로그인 성공하면 데이터 불러오는 함수.
         async function getMusic() {
           var arr: { title: string; singer: string; url: string }[] = [];
           await firebase
@@ -175,7 +187,6 @@ function App() {
               return arr.push(doc.data());
             });
           });
-          // await console.log(arr);
           await setMusic(arr);
         }
        await getMusic();
@@ -186,7 +197,7 @@ function App() {
           console.log("다시 입력해주세요..");
         });
       };
-      console.log(music);
+
   //로그아웃 함수.
   const logOut: SettingIprops["logout"] = function () {
     firebase
@@ -199,7 +210,7 @@ function App() {
   };
 
 
-  // Main Action 버튼 조절 state.
+  // Main 컴포넌트 Action 버튼 조절 state.
   let [num, setNum] = useState<MainIprops["num"]>(0);
   let [nextNum, setNextNum] = useState<MainIprops["nextNum"]>(0);
 
@@ -208,7 +219,7 @@ function App() {
     {
       id: 0,
       title: "favorite",
-      info: "glen check, 한요한, 10cm..",
+      info: "",
       playList: [
         {
           title: "Ive got this feeling",
@@ -228,7 +239,7 @@ function App() {
     {
       id: 1,
       title: "rock balad",
-      info: "buzz, 김상민..",
+      info: "",
       playList: [
         {
           title: "남자를 몰라",
@@ -246,26 +257,36 @@ function App() {
       active: false,
     },
   ]);
-  const [test, setTest] = useState<AddAlbumIprops['test']>({ id:3, name:'', playList:[{ title: "", singer: "" }], info:"", active: false });
+
+  // 앨범 추가시킬 state.
+  const [addAlbumState, setAddAlbumState] = useState<AddAlbumIprops['addAlbumState']>({
+      id:3, 
+      name:'',
+      playList:[{ title: "", singer: "" }], 
+      info:"", 
+      active: false 
+    });
     const onChangeAlbum = function(e:React.ChangeEvent<HTMLInputElement>) {
         const { name, value } = e.target;
-        setTest({ ...test, [name]: value })
+        setAddAlbumState({ ...addAlbumState, [name]: value })
     }
-    const { id, name, playList, info, active } = test;
+    const { id, name, playList, info, active } = addAlbumState;
  
   // 앨범설정 추가, 삭제 모달.
-  const onModal: OnModal = function (id) {
+  const onModal: OnModalType = function (id) {
     setAlbum(
       album.map((list) => {
         return list.id === id ? { ...list, active: !list.active } : list;
       })
     );
   };
+  // addAlbum state id.
   let [nextId, setNextId] = useState<number>(3);
+
   const addAlbum:AddAlbumIprops['addAlbum'] = function() {
     const item = { title: test.name, id, playList, info, active };
     setAlbum([ ...album, item ])
-    setTest({ id: nextId, name: "", playList, info:"", active: false });
+    setAddAlbumState({ id: nextId, name: "", playList, info:"", active: false });
     setNextId(nextId + 1);
   }
   // 앨범 제거 함수.
@@ -316,15 +337,15 @@ function App() {
     },
   };
   // audio 지정 ref.
-  const player = useRef<Any>();
-  const source = useRef<Any>();
+  const player = useRef<AnyType>();
+  const source = useRef<AnyType>();
 
-  // 음악 원격 재생 함수.
-  const playTheMusic: PlayTheMusic = function() {
+  // Action 컴포넌트 컨트롤러 플레이 함수.
+  const playTheMusic: PlayTheMusicType = function() {
     // player.current.load();
     player.current.play();
   }
-  const pauseTheMusic: PauseTheMusic = function() {
+  const pauseTheMusic: PauseTheMusicType = function() {
     // player.current.load();
     player.current.pause();
   }
@@ -336,13 +357,13 @@ function App() {
   // firebase storage.
   const storage = firebase.storage();
   // 음악 파일 받아오는 함수.
-  const onChangeMusic: OnChange = (e) => {
+  const onChangeMusic: OnChangeType = (e) => {
     setFiles(e.target.files[0]);
     setOn(!on);
   };
 
   // 🎵노래 업로드 기능🎵.(firestore에 text로 저장하기)
-  const upLoadMusic: UpLoading = function () {
+  const upLoadMusic: UpLoadingType = function () {
     const storageRef = storage.ref();
     const downLoadPath = storageRef.child("music/" + musicFile.name);
     const upLoading = downLoadPath.put(musicFile);
@@ -351,7 +372,7 @@ function App() {
       // 변화할 때, 동작하는 함수.
       (loading) => {
         // error, loading 타입 변경하기..
-        console.log("로딩중.." + loading);
+        console.log("로딩중..", loading);
       },
       //에러시 동작하는 함수.
       (error) => {
@@ -362,16 +383,7 @@ function App() {
       () => {
         upLoading.snapshot.ref.getDownloadURL().then((url) => {
           console.log("업로드 성공!");
-          // const item = {
-          //   title: musicFile.name.split("-")[1],
-          //   singer: musicFile.name.split("-")[0],
-          //   url: url,
-          // };
-          // // firestore에 title,singer,url 보내는거 추가하기.
-          // setMusic([...music, item]);
           setOn(!on);
-          // setFiles(null);
-          // console.log("업로드된 경로는", url);
 
           // firestore에 text로 저장.
           const db = firebase.firestore();
@@ -382,29 +394,11 @@ function App() {
               singer: musicFile.name.split("-")[0],
               url: url,
             });
-          // 잘 저장 되었는지 출력.
-          // db.collection("playList")
-          //   .get()
-          //   .then((result) => {
-          //     result.forEach((doc) => {
-          //       console.log(doc.data());
-          //     });
-          //   });
         });
       }
     );
   };
 
-    useEffect(()=>{
-      // 노래 업로드 시킬 때마다 로컬스토리지 업데이트 해주세요~
-      var arr: { title: string; singer: string; url: string }[] = [];
-      firebase.firestore().collection("playList").get().then((snapshot)=>{
-        snapshot.forEach((doc:DocumentData)=> {
-          return arr.push(doc.data());
-        })
-      })
-      window.localStorage.setItem("playLists", JSON.stringify(arr));
-  }, [upLoadMusic]);
 
   return (
     <div className="App">
@@ -449,7 +443,7 @@ function App() {
         />
       </Route>
       <Route path="/setting/addalbum">
-        <AddAlbum album={album} onChangeAlbum={onChangeAlbum} test={test} addAlbum={addAlbum} />
+        <AddAlbum album={album} onChangeAlbum={onChangeAlbum} addAlbumState={addAlbumState} addAlbum={addAlbum} />
       </Route>
     </div>
   );

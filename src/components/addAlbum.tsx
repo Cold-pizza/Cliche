@@ -10,8 +10,8 @@ const AddAlbum:React.FC<AddAlbumIprops> = function(props):JSX.Element {
         <div className="album-form">
         <i className="fas fa-record-vinyl lp"></i>
         <div className="input-form">
-        <input type="text" value={props.test.name} name="name" onChange={props.onChangeAlbum} placeholder="앨범제목"/>
-        <span>{props.test.name}</span>
+        <input type="text" value={props.addAlbumState.name} name="name" onChange={props.onChangeAlbum} placeholder="앨범제목"/>
+        <span>{props.addAlbumState.name}</span>
         </div>
         </div>
         <i onClick={()=>{

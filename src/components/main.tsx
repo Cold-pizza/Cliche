@@ -5,26 +5,14 @@ import { MainIprops } from "../App";
 import firebase from "firebase";
 import { DocumentData } from "@google-cloud/firestore";
 
-type Item = {
-  title: string;
-  singer: string;
-  url: string;
-}[];
 
 const Main: React.FC<MainIprops> = function (props): JSX.Element {
-  const a = ["https://firebasestorage.googleapis.com/v0/b/cilche-prototype.appspot.com/o/music%2FGlen%20Check-84.mp3?alt=media&token=c02e6ed7-ae05-4eb7-824b-15563fd8bc38",
-   "https://firebasestorage.googleapis.com/v0/b/cilche-prototype.appspot.com/o/music%2FGlen%20Check-Ive%20Got%20This%20Feeling.mp3?alt=media&token=08bb4ff6-3911-4326-a499-e32fde1f302a"]
-  // const history = useHistory();
-  const [item, setItem] = useState<Item>([]);
-  useEffect(()=>{
-    if (props.music !== null) {
-      setItem(props.music);
-    }
-  }, [])
+  // 다음 곡, 이전 곡 누를 때마다 audio src 변경.
   useEffect(()=>{
     props.source.current.src = props.music[props.nextNum].url;
   }, [props.nextNum])
-  
+  // console.log(Math.floor(props.player.current.currentTime))
+  // console.log(Math.floor(props.player.current.duration))
   return (
     <div id="main">
       <section className="display-music">
@@ -36,6 +24,10 @@ const Main: React.FC<MainIprops> = function (props): JSX.Element {
           {props.music[props.nextNum].singer}
         </span>
       </section>
+      <div className="time-line">
+        <p className="current-time">0</p>
+        <p className="duration">0</p>
+      </div>
       <audio preload="auto" controls className="music-player" ref={props.player}>
         <source
         ref={props.source}
