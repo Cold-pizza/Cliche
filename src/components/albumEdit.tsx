@@ -7,7 +7,7 @@ const AlbumEdit: React.FC<AlbumEditIprops> = function (props): JSX.Element {
   const { id } = useParams<{ id: string | undefined }>();
   const ids = Number(id);
   return (
-    <div id="albumEdit">
+    <div id="album-edit">
       <header>
         <i className="fas fa-record-vinyl"></i>
         <div className="album-info">
