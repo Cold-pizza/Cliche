@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import "./App.scss";
 import { Route, withRouter, useHistory } from "react-router-dom";
 import firebase from "./firebase";
@@ -8,15 +8,13 @@ import SignUp from "./components/signup";
 import Login from "./components/login";
 import Main from "./components/main";
 import Setting from "./components/setting";
-import Notice from "./components/notice";
 import Version from "./components/version";
-import PlayList from "./components/playlist";
 import AlbumEdit from "./components/albumEdit";
 import MusicList from "./components/musiclist";
 import AddMusic from "./components/addMusic";
 import AddAlbum from "./components/addAlbum";
 
-import FirebaseFirestore, { DocumentData } from "@google-cloud/firestore";
+import { DocumentData } from "@google-cloud/firestore";
 
 //useState type
 type AccountType = {
@@ -112,6 +110,7 @@ export interface ActionIprops {
 // albumEdit.tsx
 export interface AlbumEditIprops {
   album: PlayListType;
+  music: MusicType;
 }
 
 // musiclist.tsx
@@ -178,7 +177,7 @@ function App() {
         setAccount({ email: "", password: "" });
         // 로그인 성공하면 데이터 불러오는 함수.
         async function getMusic() {
-          var arr: { title: string; singer: string; url: string }[] = [];
+          let arr: { title: string; singer: string; url: string }[] = [];
           await firebase
           .firestore()
           .collection("playList")
@@ -419,17 +418,11 @@ function App() {
       </Route>
 
       {/* setting */}
-      <Route path="/setting/notice">
-        <Notice />
-      </Route>
       <Route path="/setting/version">
         <Version />
       </Route>
-      <Route exact path="/setting/playlist">
-        <PlayList album={album} onModal={onModal} albumRemove={albumRemove} />
-      </Route>
       <Route path="/setting/playlist/:id">
-        <AlbumEdit album={album} />
+        <AlbumEdit album={album} music={music}/>
       </Route>
       <Route path="/setting/addmusic/:id">
         <AddMusic music={music} />
@@ -462,38 +455,34 @@ const Nav: React.FC<MainIprops> = function (props): JSX.Element {
       title: "설정",
       site: "/setting",
     },
+ 
     {
       id: 2,
-      title: "공지사항",
-      site: "/setting/notice",
-    },
-    {
-      id: 3,
       title: "버전정보",
       site: "/setting/version",
     },
     {
-      id: 4,
+      id: 3,
       title: "앨범",
       site: "/setting/playlist",
     },
     {
-      id: 5,
+      id: 4,
       title: "앨범편집",
       site: "/setting/playlist/:id",
     },
     {
-      id: 6,
+      id: 5,
       title: "곡 리스트",
       site: "/setting/musiclist",
     },
     {
-      id: 7,
+      id: 6,
       title: "앨범노래추가",
       site: "/setting/addmusic/:id",
     },
     {
-      id: 8,
+      id: 7,
       title: "앨범추가",
       site: "/setting/addalbum",
     }

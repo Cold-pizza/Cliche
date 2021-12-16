@@ -1,18 +1,16 @@
 import "../styles/main.scss";
-import {useState, useEffect, useRef} from "react";
-import { useHistory } from "react-router-dom";
+import { useEffect } from "react";
 import { MainIprops } from "../App";
-import firebase from "firebase";
-import { DocumentData } from "@google-cloud/firestore";
 
 
 const Main: React.FC<MainIprops> = function (props): JSX.Element {
+
   // 다음 곡, 이전 곡 누를 때마다 audio src 변경.
   useEffect(()=>{
     props.source.current.src = props.music[props.nextNum].url;
   }, [props.nextNum])
-  // console.log(Math.floor(props.player.current.currentTime))
-  // console.log(Math.floor(props.player.current.duration))
+  // console.log(props.player.controls);
+  // console.log(props.player.current.duration);
   return (
     <div id="main">
       <section className="display-music">

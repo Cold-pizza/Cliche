@@ -11,13 +11,6 @@ const Setting: React.FC<SettingIprops> = function (props): JSX.Element {
       <ul>
         <li
           onClick={() => {
-            history.push("/setting/notice");
-          }}
-        >
-          공지사항
-        </li>
-        <li
-          onClick={() => {
             history.push("/setting/version");
           }}
         >
@@ -30,15 +23,6 @@ const Setting: React.FC<SettingIprops> = function (props): JSX.Element {
         >
           곡정보
         </li>
-        <li
-          onClick={() => {
-            history.push("/setting/playlist");
-          }}
-        >
-          앨범설정
-        </li>
-        <li>계정</li>
-        <li>보안</li>
         <li
           onClick={() => {
             setIsBtn(!isBtn);

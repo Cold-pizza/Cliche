@@ -3,13 +3,14 @@ import "firebase/firestore";
 import "firebase/auth";
 
 
+
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_API_KEY,
-  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_STORANGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_MESSAGING_ID,
-  appId: process.env.REACT_APP_APP_ID,
+  apiKey: "AIzaSyDJMIeMggOEkzvvmzFp4FffCYXRd5_EXnY",
+  authDomain: "cilche-prototype.firebaseapp.com",
+  projectId: "cilche-prototype",
+  storageBucket: "cilche-prototype.appspot.com",
+  messagingSenderId: "529483602235",
+  appId: "1:529483602235:web:bdc665b2d901d9b5b6ff1e",
 };
 
 // Initialize Firebase

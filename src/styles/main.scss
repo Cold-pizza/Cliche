@@ -26,10 +26,22 @@
   }
   audio {
     display: none;
+    height: 20px;
   }
   .time-line {
-    height: 5px;
+    height: 3px;
     width: 300px;
+    border-radius: 4px;
     background-color: #eee;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    display: none;
+    .current-time,
+    .duration {
+      margin-top: 6px;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.5);
+    }
   }
 }

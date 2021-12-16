@@ -54,4 +54,30 @@
   #label {
     margin-right: 40px;
   }
+
+  .panel {
+    position: relative;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 6px;
+    height: 70px;
+    padding: 0 20px;
+    background: #698eff;
+    color: white;
+    p {
+      font-size: 14px;
+      span {
+        font-weight: 600;
+      }
+    }
+    .x {
+      cursor: pointer;
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      font-size: 12px;
+    }
+  }
 }
