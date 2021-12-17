@@ -2,11 +2,15 @@ import "../styles/musiclist.scss";
 import { MusicListIprops } from "../App";
 import { useState } from "react";
 
+
+
 const MusicList: React.FC<MusicListIprops> = function (props): JSX.Element {
   const [isBtn, setIsBtn] = useState(true);
+  const [removeBtn, setRemoveBtn] = useState(false);
+
   return (
     <div id="music-list">
-      {props.music.map(({ title, singer }) => {
+      {props.music.map(({ title, singer, id }) => {
         return (
           <section className="item">
             <div className="sing-info">
@@ -16,7 +20,10 @@ const MusicList: React.FC<MusicListIprops> = function (props): JSX.Element {
                 <span>{singer}</span>
               </div>
             </div>
-            <i className="fas fa-minus remove-btn"></i>
+            <i className="fas fa-minus remove-btn" onClick={()=>{
+              props.removeModal(id)
+              setRemoveBtn(!removeBtn);
+            }}></i>
           </section>
         );
       })}
@@ -26,6 +33,24 @@ const MusicList: React.FC<MusicListIprops> = function (props): JSX.Element {
       }} ></i>
         <p>제목을 <span>"가수이름"-"노래제목"</span>으로된 파일을 업로드해주세요!</p>
       </div> : null}
+      {props.music.map(({ active,id, title })=> {
+        return(
+          active ? <div className="remove-music">
+        <p>지우시겠습니까?</p>
+        <span>{ title }</span>
+        <div className="btns">
+          <button onClick={()=>{
+            props.removeMusic(id)
+          }}>Yes</button>
+          <button onClick={()=>{
+            setRemoveBtn(!removeBtn);
+          }}>No</button>
+        </div>
+      </div> : null  
+        )
+      })    
+      }
+      
       <label id="label" htmlFor="music-file">
         <i className="fas fa-plus plus-music"></i>
       </label>

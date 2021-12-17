@@ -32,9 +32,11 @@ type PlayListType = {
   active: boolean;
 }[];
 type MusicType = {
+  id: number;
   title: string;
   singer: string;
   url: string;
+  active: boolean;
 }[];
 type AnyType = any;
 
@@ -119,6 +121,8 @@ export interface MusicListIprops {
   upLoadMusic: UpLoadingType;
   on: boolean;
   music: MusicType;
+  removeModal: (id:number) => void;
+  removeMusic: (id:number) => void;
 }
 
 // setting.tsx
@@ -177,7 +181,7 @@ function App() {
         setAccount({ email: "", password: "" });
         // 로그인 성공하면 데이터 불러오는 함수.
         async function getMusic() {
-          let arr: { title: string; singer: string; url: string }[] = [];
+          let arr: { id:number; title: string; singer: string; url: string; active: boolean; }[] = [];
           await firebase
           .firestore()
           .collection("playList")
@@ -279,6 +283,14 @@ function App() {
       })
     );
   };
+  // Music state 제거 함수.
+  const removeModal:MusicListIprops['removeModal'] = function(id) {
+    setMusic(
+      music.map((list)=> {
+        return list.id === id ? { ...list, active: !list.active } : list;
+      })
+    )
+  }
   // addAlbum state id.
   let [nextId, setNextId] = useState<number>(3);
 
@@ -296,6 +308,16 @@ function App() {
       })
     );
   };
+  // 노래 삭제 함수.
+  const removeMusic:MusicListIprops['removeMusic'] = function(id) {
+    if (music[id].active) {
+      setMusic(
+        music.filter((music)=>{
+          return music.id !== id;
+        })
+        )
+      }
+  }
 
   // action playlist up, down 버튼기능.
   const changeAlbum: ActionIprops["changeAlbum"] = {
@@ -360,7 +382,6 @@ function App() {
     setFiles(e.target.files[0]);
     setOn(!on);
   };
-
   // 🎵노래 업로드 기능🎵.(firestore에 text로 저장하기)
   const upLoadMusic: UpLoadingType = function () {
     const storageRef = storage.ref();
@@ -392,6 +413,7 @@ function App() {
               title: musicFile.name.split("-")[1],
               singer: musicFile.name.split("-")[0],
               url: url,
+              active: false,
             });
         });
       }
@@ -433,6 +455,8 @@ function App() {
           upLoadMusic={upLoadMusic}
           on={on}
           music={music}
+          removeModal={removeModal}
+          removeMusic={removeMusic}
         />
       </Route>
       <Route path="/setting/addalbum">
