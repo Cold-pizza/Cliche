@@ -1,12 +1,12 @@
 import "../styles/musiclist.scss";
 import { MusicListIprops } from "../App";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 
 
 const MusicList: React.FC<MusicListIprops> = function (props): JSX.Element {
   const [isBtn, setIsBtn] = useState(true);
-  const [removeBtn, setRemoveBtn] = useState(false);
+  const [removeBtn, setRemoveBtn] = useState(false); 
 
   return (
     <div id="music-list">
@@ -33,6 +33,14 @@ const MusicList: React.FC<MusicListIprops> = function (props): JSX.Element {
       }} ></i>
         <p>제목을 <span>"가수이름"-"노래제목"</span>으로된 파일을 업로드해주세요!</p>
       </div> : null}
+      {
+        props.musicFileName !== null ? 
+        <section className="file-name">
+        <p>선택한 파일이름</p>
+        <span>{props.musicFileName}</span>
+      </section> : null
+      }
+      
       {props.music.map(({ active,id, title })=> {
         return(
           active ? <div className="remove-music">
@@ -43,7 +51,7 @@ const MusicList: React.FC<MusicListIprops> = function (props): JSX.Element {
             props.removeMusic(id)
           }}>Yes</button>
           <button onClick={()=>{
-            setRemoveBtn(!removeBtn);
+            props.removeModal(id);
           }}>No</button>
         </div>
       </div> : null  
@@ -61,7 +69,7 @@ const MusicList: React.FC<MusicListIprops> = function (props): JSX.Element {
           props.upLoadMusic();
         }}
       ></i>
-      <input type="file" onChange={props.onChangeMusic} id="music-file" />
+      <input type="file" ref={props.fileRef} onChange={props.onChangeMusic} id="music-file" />
     </div>
   );
 };

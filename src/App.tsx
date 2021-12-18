@@ -15,6 +15,7 @@ import AddMusic from "./components/addMusic";
 import AddAlbum from "./components/addAlbum";
 
 import { DocumentData } from "@google-cloud/firestore";
+import { setOriginalNode } from "typescript";
 
 //useState type
 type AccountType = {
@@ -93,6 +94,7 @@ export interface MainIprops {
   music: MusicType;
   player: AnyType;
   source: AnyType;
+  fileInitial: ()=> void;
 }
 
 // Action 컴포넌트 컨트롤러 type
@@ -123,6 +125,8 @@ export interface MusicListIprops {
   music: MusicType;
   removeModal: (id:number) => void;
   removeMusic: (id:number) => void;
+  fileRef: any;
+  musicFileName: string;
 }
 
 // setting.tsx
@@ -207,7 +211,11 @@ function App() {
       .auth()
       .signOut()
       .then(() => {
+        // if (fileRef.current.value === '') {
+        //   fileRef.current.files[0] = '';
+        // }
         console.log("로그아웃 하셨습니다.");
+        setOn(!on);
         history.replace("/");
       });
   };
@@ -377,10 +385,19 @@ function App() {
   const [musicFile, setFiles] = useState(null);
   // firebase storage.
   const storage = firebase.storage();
-  // 음악 파일 받아오는 함수.
+  // 노래파일 선택 ref.
+  const fileRef = useRef<MusicListIprops["fileRef"]>(null);
+  // 음악파일 제목 state.
+  const [musicFileName, setMusicFileName] = useState<MusicListIprops["musicFileName"]>("");
+  // 음악 파일 받아오는 함수 + 노래파일 이름 표시.
   const onChangeMusic: OnChangeType = (e) => {
     setFiles(e.target.files[0]);
     setOn(!on);
+    if (fileRef !== null) {
+      const fileNameRef = fileRef.current.value;
+      const fileNames = fileNameRef.split("\\")[2];
+      setMusicFileName(fileNames);
+    }
   };
   // 🎵노래 업로드 기능🎵.(firestore에 text로 저장하기)
   const upLoadMusic: UpLoadingType = function () {
@@ -403,6 +420,7 @@ function App() {
       () => {
         upLoading.snapshot.ref.getDownloadURL().then((url) => {
           console.log("업로드 성공!");
+          setMusicFileName(null);
           setOn(!on);
 
           // firestore에 text로 저장.
@@ -420,18 +438,35 @@ function App() {
     );
   };
 
+  // 뒤로가기 클릭 시 파일 초기화 하는 함수.
+  const fileInitial:MainIprops["fileInitial"] = function() {
+    setMusicFileName(null);
+    if (on) {
+      setOn(!on);
+    }
+  }
 
   return (
     <div className="App">
-      <Nav player={player} source={source} album={album} num={num} nextNum={nextNum} music={music} />
+      <Nav player={player} fileInitial={fileInitial} source={source} album={album} num={num} nextNum={nextNum} music={music} />
       <Route exact path="/">
         <Login login={login} account={account} onChange={onChange} />
       </Route>
       <Route path="/signup">
-        <SignUp createUser={createUser} account={account} onChange={onChange} />
+        <SignUp
+         createUser={createUser}
+         account={account}
+          onChange={onChange}
+        />
       </Route>
       <Route path="/main">
-        <Main source={source} player={player} album={album} num={num} nextNum={nextNum} music={music} />
+        <Main fileInitial={fileInitial}
+          source={source} 
+          player={player} 
+          album={album} 
+          num={num} 
+          nextNum={nextNum} 
+          music={music} />
         <Actions playTheMusic={playTheMusic} pauseTheMusic={pauseTheMusic} changeAlbum={changeAlbum} changeMusic={changeMusic} />
       </Route>
 
@@ -451,12 +486,14 @@ function App() {
       </Route>
       <Route path="/setting/musiclist">
         <MusicList
+          fileRef={fileRef}
           onChangeMusic={onChangeMusic}
           upLoadMusic={upLoadMusic}
           on={on}
           music={music}
           removeModal={removeModal}
           removeMusic={removeMusic}
+          musicFileName={musicFileName}
         />
       </Route>
       <Route path="/setting/addalbum">
@@ -466,6 +503,7 @@ function App() {
   );
 }
 
+// Nav Components
 const Nav: React.FC<MainIprops> = function (props): JSX.Element {
   const history = useHistory();
   const [navList, setNavList] = useState([
@@ -520,6 +558,9 @@ const Nav: React.FC<MainIprops> = function (props): JSX.Element {
 
             { navList.site === '/main' ? null:<i
               onClick={() => {
+                if (navList.site === '/setting/musiclist') {
+                  props.fileInitial();
+                }
                 history.goBack();
               }}
               className="fas fa-chevron-left"
