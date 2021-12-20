@@ -6,7 +6,6 @@ import { useState, useRef } from "react";
 
 const MusicList: React.FC<MusicListIprops> = function (props): JSX.Element {
   const [isBtn, setIsBtn] = useState(true);
-  const [removeBtn, setRemoveBtn] = useState(false); 
 
   return (
     <div id="music-list">
@@ -21,8 +20,7 @@ const MusicList: React.FC<MusicListIprops> = function (props): JSX.Element {
               </div>
             </div>
             <i className="fas fa-minus remove-btn" onClick={()=>{
-              props.removeModal(id)
-              setRemoveBtn(!removeBtn);
+              props.removeModal(id);
             }}></i>
           </section>
         );
@@ -48,7 +46,8 @@ const MusicList: React.FC<MusicListIprops> = function (props): JSX.Element {
         <span>{ title }</span>
         <div className="btns">
           <button onClick={()=>{
-            props.removeMusic(id)
+            props.removeMusic(id);
+            props.removeModal(id);
           }}>Yes</button>
           <button onClick={()=>{
             props.removeModal(id);

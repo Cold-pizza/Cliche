@@ -14,7 +14,7 @@ import MusicList from "./components/musiclist";
 import AddMusic from "./components/addMusic";
 import AddAlbum from "./components/addAlbum";
 
-import { DocumentData } from "@google-cloud/firestore";
+import { DocumentData, DocumentReference } from "@google-cloud/firestore";
 import { setOriginalNode } from "typescript";
 
 //useState type
@@ -127,6 +127,7 @@ export interface MusicListIprops {
   removeMusic: (id:number) => void;
   fileRef: any;
   musicFileName: string;
+  removeBtnModal: ()=> void;
 }
 
 // setting.tsx
@@ -291,7 +292,7 @@ function App() {
       })
     );
   };
-  // Music state 제거 함수.
+  // Music state 제거 모달 함수.
   const removeModal:MusicListIprops['removeModal'] = function(id) {
     setMusic(
       music.map((list)=> {
@@ -299,6 +300,7 @@ function App() {
       })
     )
   }
+
   // addAlbum state id.
   let [nextId, setNextId] = useState<number>(3);
 
@@ -316,14 +318,22 @@ function App() {
       })
     );
   };
+  // 노래 제거 모달창 onOff state.
+  const [removeBtn, setRemoveBtn] = useState(false); 
+  // 노래 제거 모달창 여닫이 함수.
+  const removeBtnModal:MusicListIprops['removeBtnModal'] = function() {
+    setRemoveBtn(!removeBtn);
+  }
   // 노래 삭제 함수.
   const removeMusic:MusicListIprops['removeMusic'] = function(id) {
+    const db = firebase.firestore().collection('playList');
+    const uid:string = music[id].singer+'-'+music[id].title;
     if (music[id].active) {
-      setMusic(
-        music.filter((music)=>{
-          return music.id !== id;
-        })
-        )
+      db.doc(uid).delete().then(()=>{
+        console.log('success delete!');
+      }).catch(()=>{
+        console.log('something wrong');
+      })
       }
   }
 
@@ -446,6 +456,7 @@ function App() {
     }
   }
 
+
   return (
     <div className="App">
       <Nav player={player} fileInitial={fileInitial} source={source} album={album} num={num} nextNum={nextNum} music={music} />
@@ -494,6 +505,7 @@ function App() {
           removeModal={removeModal}
           removeMusic={removeMusic}
           musicFileName={musicFileName}
+          removeBtnModal={removeBtnModal}
         />
       </Route>
       <Route path="/setting/addalbum">
