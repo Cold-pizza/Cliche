@@ -10,5 +10,5 @@
 
 ### 사용한 툴
 
-Front: React, Typescript
+Front: React, Typescript  
 Database: Firebase
