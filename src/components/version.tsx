@@ -5,6 +5,12 @@ const Version = function () {
     <div id="version">
       <h1>*최신 버전입니다.*</h1>
       <section className="item">
+        <h1>ver - 0.2.4</h1>
+        <p className="path-title">버전내용</p>
+        <p className="path-content">- removeBtnModal 함수 제거.</p>
+        <p className="path-content">- useRef()로 노래 id 생성.</p>
+      </section>
+      <section className="item">
         <h1>ver - 0.2.3</h1>
         <p className="path-title">버전내용</p>
         <p className="path-content">- 노래추가시 부가설명 나오게 만들었습니다.</p>

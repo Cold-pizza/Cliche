@@ -16,7 +16,6 @@ const AddAlbum:React.FC<AddAlbumIprops> = function(props):JSX.Element {
         </div>
         <i onClick={()=>{
             console.log('앨범 생성!')
-            props.addAlbum();
             history.push("/setting/playlist")
         }} className="fas fa-check check-box"></i>
     </div>

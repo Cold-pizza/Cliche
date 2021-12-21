@@ -6,8 +6,9 @@ import { MainIprops } from "../App";
 const Main: React.FC<MainIprops> = function (props): JSX.Element {
 
   // 다음 곡, 이전 곡 누를 때마다 audio src 변경.
-  useEffect(()=>{
-    props.source.current.src = props.music[props.nextNum].url;
+  
+    useEffect(()=>{
+      props.source.current.src = props.music[props.nextNum].url;
   }, [props.nextNum])
   // console.log(props.player.controls);
   // console.log(props.player.current.duration);
@@ -16,10 +17,10 @@ const Main: React.FC<MainIprops> = function (props): JSX.Element {
       <section className="display-music">
         <div className="picture">앨범을 선택해 주세요!</div>
         <span className="title">
-          {props.music[props.nextNum].title}
+          { props.music.length === 0 ? null : props.music[props.nextNum].title }
         </span>
         <span className="singer">
-          {props.music[props.nextNum].singer}
+          { props.music.length === 0 ? null : props.music[props.nextNum].singer }
         </span>
       </section>
       <div className="time-line">

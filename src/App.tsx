@@ -15,7 +15,6 @@ import AddMusic from "./components/addMusic";
 import AddAlbum from "./components/addAlbum";
 
 import { DocumentData, DocumentReference } from "@google-cloud/firestore";
-import { setOriginalNode } from "typescript";
 
 //useState type
 type AccountType = {
@@ -63,7 +62,6 @@ type UpLoadingType = () => void;
 type AlbumRemoveType = (id: number) => void;
 type PlayTheMusicType = () => void;
 type PauseTheMusicType = () => void;
-type AddAlbumType = () => void;
 
 // export signup.tsx
 export interface SignUpIprops {
@@ -127,7 +125,6 @@ export interface MusicListIprops {
   removeMusic: (id:number) => void;
   fileRef: any;
   musicFileName: string;
-  removeBtnModal: ()=> void;
 }
 
 // setting.tsx
@@ -145,7 +142,6 @@ export interface AddAlbumIprops {
   album: PlayListType;
   onChangeAlbum: OnChangeAlbumType;
   addAlbumState: AddAlbumStateType;
-  addAlbum: AddAlbumType;
 }
 
 // App Component
@@ -282,16 +278,8 @@ function App() {
         const { name, value } = e.target;
         setAddAlbumState({ ...addAlbumState, [name]: value })
     }
-    const { id, name, playList, info, active } = addAlbumState;
  
-  // 앨범설정 추가, 삭제 모달.
-  const onModal: OnModalType = function (id) {
-    setAlbum(
-      album.map((list) => {
-        return list.id === id ? { ...list, active: !list.active } : list;
-      })
-    );
-  };
+
   // Music state 제거 모달 함수.
   const removeModal:MusicListIprops['removeModal'] = function(id) {
     setMusic(
@@ -301,29 +289,15 @@ function App() {
     )
   }
 
-  // addAlbum state id.
-  let [nextId, setNextId] = useState<number>(3);
+  // 앨범 추가 함수.
+  // const addAlbum:AddAlbumIprops['addAlbum'] = function() {
+  //   const item = { title: test.name, id, playList, info, active };
+  //   setAlbum([ ...album, item ])
+  //   setAddAlbumState({ id: nextId, name: "", playList, info:"", active: false });
+  //   setNextId(nextId + 1);
+  // }
 
-  const addAlbum:AddAlbumIprops['addAlbum'] = function() {
-    const item = { title: test.name, id, playList, info, active };
-    setAlbum([ ...album, item ])
-    setAddAlbumState({ id: nextId, name: "", playList, info:"", active: false });
-    setNextId(nextId + 1);
-  }
-  // 앨범 제거 함수.
-  const albumRemove: PlayListIprops["albumRemove"] = function (id) {
-    setAlbum(
-      album.filter((album) => {
-        return album.id !== id;
-      })
-    );
-  };
-  // 노래 제거 모달창 onOff state.
-  const [removeBtn, setRemoveBtn] = useState(false); 
-  // 노래 제거 모달창 여닫이 함수.
-  const removeBtnModal:MusicListIprops['removeBtnModal'] = function() {
-    setRemoveBtn(!removeBtn);
-  }
+
   // 노래 삭제 함수.
   const removeMusic:MusicListIprops['removeMusic'] = function(id) {
     const db = firebase.firestore().collection('playList');
@@ -409,6 +383,10 @@ function App() {
       setMusicFileName(fileNames);
     }
   };
+
+  // 음악 id.
+  let [nextId, setNextId] = useState<number>(0);
+
   // 🎵노래 업로드 기능🎵.(firestore에 text로 저장하기)
   const upLoadMusic: UpLoadingType = function () {
     const storageRef = storage.ref();
@@ -418,12 +396,10 @@ function App() {
       "state_changed",
       // 변화할 때, 동작하는 함수.
       (loading) => {
-        // error, loading 타입 변경하기..
         console.log("로딩중..", loading);
       },
       //에러시 동작하는 함수.
       (error) => {
-        // 타입 변경!!
         console.log("실패사유: ", error);
       },
       // 성공시 동작하는 함수.
@@ -442,8 +418,10 @@ function App() {
               singer: musicFile.name.split("-")[0],
               url: url,
               active: false,
+              id: nextId,
             });
         });
+        setNextId(nextId + 1);
       }
     );
   };
@@ -505,11 +483,10 @@ function App() {
           removeModal={removeModal}
           removeMusic={removeMusic}
           musicFileName={musicFileName}
-          removeBtnModal={removeBtnModal}
         />
       </Route>
       <Route path="/setting/addalbum">
-        <AddAlbum album={album} onChangeAlbum={onChangeAlbum} addAlbumState={addAlbumState} addAlbum={addAlbum} />
+        <AddAlbum album={album} onChangeAlbum={onChangeAlbum} addAlbumState={addAlbumState} />
       </Route>
     </div>
   );
