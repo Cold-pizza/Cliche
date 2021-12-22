@@ -6,10 +6,11 @@ import { MainIprops } from "../App";
 const Main: React.FC<MainIprops> = function (props): JSX.Element {
 
   // 다음 곡, 이전 곡 누를 때마다 audio src 변경.
-  
     useEffect(()=>{
-      props.source.current.src = props.music[props.nextNum].url;
-  }, [props.nextNum])
+      if (props.music.length !== 0) {
+        props.source.current.src = props.music[props.nextNum].url;
+      }
+  })
   // console.log(props.player.controls);
   // console.log(props.player.current.duration);
   return (
