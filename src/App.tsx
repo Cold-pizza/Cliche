@@ -9,28 +9,16 @@ import Login from "./components/login";
 import Main from "./components/main";
 import Setting from "./components/setting";
 import Version from "./components/version";
-import AlbumEdit from "./components/albumEdit";
 import MusicList from "./components/musiclist";
 import AddMusic from "./components/addMusic";
-import AddAlbum from "./components/addAlbum";
 
-import { DocumentData, DocumentReference } from "@google-cloud/firestore";
+import { DocumentData } from "@google-cloud/firestore";
 
 //useState type
 type AccountType = {
   email: string;
   password: string;
 };
-type PlayListType = {
-  id: number;
-  title: string;
-  info: string;
-  playList: {
-    title: string;
-    singer: string;
-  }[];
-  active: boolean;
-}[];
 type MusicType = {
   id: number;
   title: string;
@@ -40,26 +28,13 @@ type MusicType = {
 }[];
 type AnyType = any;
 
-type AddAlbumStateType = {
-    name: string;
-    info: string;
-    id: number;
-    playList: {
-      title: string;
-      singer: string;
-    }[];
-    active: boolean;
-  }
-
 // 함수 type
 type OnChangeType = (e: React.ChangeEvent<HTMLInputElement>) => void;
-type OnChangeAlbumType = (e: React.ChangeEvent<HTMLInputElement>) => void;
 type CreateUserType = (email: string, password: string) => void;
 type LoginType = (email: string, password: string) => void;
 type LogOutType = () => void;
 type OnModalType = (id: number) => void;
 type UpLoadingType = () => void;
-type AlbumRemoveType = (id: number) => void;
 type PlayTheMusicType = () => void;
 type PauseTheMusicType = () => void;
 
@@ -79,14 +54,11 @@ export interface LoginIprops {
 
 //export playlist.tsx
 export interface PlayListIprops {
-  album: PlayListType;
   onModal: OnModalType;
-  albumRemove: AlbumRemoveType;
 }
 
 // export main.tsx
 export interface MainIprops {
-  album: PlayListType;
   num: number;
   nextNum: number;
   music: MusicType;
@@ -97,22 +69,12 @@ export interface MainIprops {
 
 // Action 컴포넌트 컨트롤러 type
 export interface ActionIprops {
-  changeAlbum: {
-    nextAlbum: () => void;
-    beforeAlbum: () => void;
-  };
   changeMusic: {
     nextMusic: () => void;
     beforeMusic: () => void;
   };
   playTheMusic: PlayTheMusicType;
   pauseTheMusic: PauseTheMusicType;
-}
-
-// albumEdit.tsx
-export interface AlbumEditIprops {
-  album: PlayListType;
-  music: MusicType;
 }
 
 // musiclist.tsx
@@ -137,13 +99,6 @@ export interface AddMusicIprops {
   music: MusicType;
 }
 
-// addAlbum.tsx
-export interface AddAlbumIprops {
-  album: PlayListType;
-  onChangeAlbum: OnChangeAlbumType;
-  addAlbumState: AddAlbumStateType;
-}
-
 // App Component
 function App() {
   const history = useHistory();
@@ -155,7 +110,7 @@ function App() {
     setAccount({ ...account, [e.target.name]: e.target.value });
   };
 
-  // 계정만드는 함수.
+  // 계정만드는 함수❗️.
   const createUser: SignUpIprops["createUser"] = async function () {
     await firebase
       .auth()
@@ -208,9 +163,6 @@ function App() {
       .auth()
       .signOut()
       .then(() => {
-        // if (fileRef.current.value === '') {
-        //   fileRef.current.files[0] = '';
-        // }
         console.log("로그아웃 하셨습니다.");
         setOn(!on);
         history.replace("/");
@@ -222,64 +174,6 @@ function App() {
   let [num, setNum] = useState<MainIprops["num"]>(0);
   let [nextNum, setNextNum] = useState<MainIprops["nextNum"]>(0);
 
-  // 나의 앨범 state.
-  const [album, setAlbum] = useState<PlayListType>([
-    {
-      id: 0,
-      title: "favorite",
-      info: "",
-      playList: [
-        {
-          title: "Ive got this feeling",
-          singer: "Glen Check",
-        },
-        {
-          title: "람보르기니",
-          singer: "Han Yo Han",
-        },
-        {
-          title: "paint it gold",
-          singer: "Glen Check",
-        },
-      ],
-      active: false,
-    },
-    {
-      id: 1,
-      title: "rock balad",
-      info: "",
-      playList: [
-        {
-          title: "남자를 몰라",
-          singer: "버즈",
-        },
-        {
-          title: "YOU",
-          singer: "김상민",
-        },
-        {
-          title: "가시",
-          singer: "buzz",
-        },
-      ],
-      active: false,
-    },
-  ]);
-
-  // 앨범 추가시킬 state.
-  const [addAlbumState, setAddAlbumState] = useState<AddAlbumIprops['addAlbumState']>({
-      id:3, 
-      name:'',
-      playList:[{ title: "", singer: "" }], 
-      info:"", 
-      active: false 
-    });
-    const onChangeAlbum = function(e:React.ChangeEvent<HTMLInputElement>) {
-        const { name, value } = e.target;
-        setAddAlbumState({ ...addAlbumState, [name]: value })
-    }
- 
-
   // Music state 제거 모달 함수.
   const removeModal:MusicListIprops['removeModal'] = function(id) {
     setMusic(
@@ -288,15 +182,6 @@ function App() {
       })
     )
   }
-
-  // 앨범 추가 함수.
-  // const addAlbum:AddAlbumIprops['addAlbum'] = function() {
-  //   const item = { title: test.name, id, playList, info, active };
-  //   setAlbum([ ...album, item ])
-  //   setAddAlbumState({ id: nextId, name: "", playList, info:"", active: false });
-  //   setNextId(nextId + 1);
-  // }
-
 
   // 노래 삭제 함수.
   const removeMusic:MusicListIprops['removeMusic'] = function(id) {
@@ -311,26 +196,7 @@ function App() {
       }
   }
 
-  // action playlist up, down 버튼기능.
-  const changeAlbum: ActionIprops["changeAlbum"] = {
-    nextAlbum: function () {
-      if (nextNum < album.length - 1) {
-        setNum(num + 1);
-        player.current.load();
-      } else {
-        return num;
-      }
-    },
-    beforeAlbum: function () {
-      if (num > 0) {
-        setNum(num - 1);
-        player.current.load();
-      } else {
-        return num;
-      }
-    },
-  };
-  // action playlist next, before Music 버튼기능.
+  // 다음곡, 이전곡 버튼기능.
   const changeMusic: ActionIprops["changeMusic"] = {
     nextMusic: function () {
       if (nextNum < music.length - 1) {
@@ -437,7 +303,7 @@ function App() {
 
   return (
     <div className="App">
-      <Nav player={player} fileInitial={fileInitial} source={source} album={album} num={num} nextNum={nextNum} music={music} />
+      <Nav player={player} fileInitial={fileInitial} source={source} num={num} nextNum={nextNum} music={music} />
       <Route exact path="/">
         <Login login={login} account={account} onChange={onChange} />
       </Route>
@@ -452,11 +318,10 @@ function App() {
         <Main fileInitial={fileInitial}
           source={source} 
           player={player} 
-          album={album} 
           num={num} 
           nextNum={nextNum} 
           music={music} />
-        <Actions playTheMusic={playTheMusic} pauseTheMusic={pauseTheMusic} changeAlbum={changeAlbum} changeMusic={changeMusic} />
+        <Actions playTheMusic={playTheMusic} pauseTheMusic={pauseTheMusic} changeMusic={changeMusic} />
       </Route>
 
       <Route exact path="/setting">
@@ -467,9 +332,7 @@ function App() {
       <Route path="/setting/version">
         <Version />
       </Route>
-      <Route path="/setting/playlist/:id">
-        <AlbumEdit album={album} music={music}/>
-      </Route>
+
       <Route path="/setting/addmusic/:id">
         <AddMusic music={music} />
       </Route>
@@ -484,9 +347,6 @@ function App() {
           removeMusic={removeMusic}
           musicFileName={musicFileName}
         />
-      </Route>
-      <Route path="/setting/addalbum">
-        <AddAlbum album={album} onChangeAlbum={onChangeAlbum} addAlbumState={addAlbumState} />
       </Route>
     </div>
   );
@@ -556,9 +416,10 @@ const Nav: React.FC<MainIprops> = function (props): JSX.Element {
               ></i>}
               </div>
             <span>
-              {navList.site === "/main"
+              Cliche
+              {/* {navList.site === "/main"
                 ? (navList.title = props.album[props.num].title)
-                : navList.title}
+                : navList.title} */}
             </span>
             <div style={{ width: '20px' }}>
 
@@ -585,7 +446,7 @@ const Actions: React.FC<ActionIprops> = function (props): JSX.Element {
       <section className="up-btn">
         <i
           onClick={() => {
-            props.changeAlbum.beforeAlbum();
+            alert('추가 예정');
           }}
           className="fas fa-chevron-up"
         ></i>
@@ -626,7 +487,7 @@ const Actions: React.FC<ActionIprops> = function (props): JSX.Element {
       <section className="bottom-btn">
         <i
           onClick={() => {
-            props.changeAlbum.nextAlbum();
+            alert('추가 예정');
           }}
           className="fas fa-chevron-down"
         ></i>
