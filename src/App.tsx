@@ -103,7 +103,6 @@ export interface AddMusicIprops {
 function App() {
   const history = useHistory();
   const [account, setAccount] = useState<AccountType>({ email: "", password: "" });
-  const { email, password } = account;
 
   // input.value를 account state에 저장.
   const onChange: SignUpIprops["onChange"] = function (e) {
@@ -111,17 +110,15 @@ function App() {
   };
 
   // 계정만드는 함수❗️.
-  const createUser: SignUpIprops["createUser"] = async function () {
-    await firebase
+  const createUser: SignUpIprops["createUser"] = function (email, password) {
+    firebase
       .auth()
       .createUserWithEmailAndPassword(email, password)
       .then(() => {
-        console.log("가입 성공!");
         setAccount({ email: "", password: "" });
-        history.replace("/");
       })
       .catch(() => {
-        console.log("가입 실패!");
+        alert("가입 실패");
       });
   };
 

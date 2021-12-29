@@ -32,6 +32,8 @@ const SignUp: React.FC<SignUpIprops> = function (props): JSX.Element {
         <button
           onClick={() => {
             props.createUser(email, password);
+            alert('가입 성공')
+            history.push('/');
           }}
           className="signup-btn"
         >
