@@ -75,6 +75,7 @@ export interface ActionIprops {
   };
   playTheMusic: PlayTheMusicType;
   pauseTheMusic: PauseTheMusicType;
+  volControl: (vol: string) => void;
 }
 
 // musiclist.tsx
@@ -130,7 +131,8 @@ function App() {
      firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
-      .then(async () => {
+      .then(async (res) => {
+        console.log(res)
         setAccount({ email: "", password: "" });
         // 로그인 성공하면 데이터 불러오는 함수.
         async function getMusic() {
@@ -159,7 +161,8 @@ function App() {
     firebase
       .auth()
       .signOut()
-      .then(() => {
+      .then((res) => {
+        console.log(res)
         console.log("로그아웃 하셨습니다.");
         setOn(!on);
         history.replace("/");
@@ -215,6 +218,20 @@ function App() {
   // audio 지정 ref.
   const player = useRef<AnyType>();
   const source = useRef<AnyType>();
+
+  // 음악 볼륨 설정 함수.
+  const volControl:ActionIprops['volControl'] = function(vol) {
+    if (vol === 'up' && player.current.volume < 1) {
+    player.current.volume  += 0.1;
+    console.log(player.current.volume);
+  } else if (vol === 'down' && player.current.volume > 0.11) {
+      player.current.volume -= 0.1;
+      console.log(player.current.volume);
+  } else {
+    alert('최대 입니다.')
+    return false;
+  }
+  }
 
   // Action 컴포넌트 컨트롤러 플레이 함수.
   const playTheMusic: PlayTheMusicType = function() {
@@ -318,7 +335,12 @@ function App() {
           num={num} 
           nextNum={nextNum} 
           music={music} />
-        <Actions playTheMusic={playTheMusic} pauseTheMusic={pauseTheMusic} changeMusic={changeMusic} />
+        <Actions 
+        playTheMusic={playTheMusic} 
+        pauseTheMusic={pauseTheMusic} 
+        changeMusic={changeMusic}
+        volControl={volControl}
+         />
       </Route>
 
       <Route exact path="/setting">
@@ -437,13 +459,15 @@ const Nav: React.FC<MainIprops> = function (props): JSX.Element {
 
 const Actions: React.FC<ActionIprops> = function (props): JSX.Element {
   const [play, setPlay] = useState(false);
+  const up:string = 'up';
+  const down:string = 'down';
   
   return (
     <div id="actions">
       <section className="up-btn">
         <i
           onClick={() => {
-            alert('추가 예정');
+            props.volControl(up);
           }}
           className="fas fa-chevron-up"
         ></i>
@@ -484,7 +508,7 @@ const Actions: React.FC<ActionIprops> = function (props): JSX.Element {
       <section className="bottom-btn">
         <i
           onClick={() => {
-            alert('추가 예정');
+            props.volControl(down);
           }}
           className="fas fa-chevron-down"
         ></i>
