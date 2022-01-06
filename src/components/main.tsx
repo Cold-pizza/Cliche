@@ -16,7 +16,9 @@ const Main: React.FC<MainIprops> = function (props): JSX.Element {
   return (
     <div id="main">
       <section className="display-music">
-        <div className="picture">앨범을 선택해 주세요!</div>
+        <div className="picture">
+          <img src={props.musicImg[props.nextNum]} alt={props.musicImg[props.nextNum]} />
+          </div>
         <span className="title">
           { props.music.length === 0 ? null : props.music[props.nextNum].title }
         </span>

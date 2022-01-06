@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./App.scss";
 import { Route, withRouter, useHistory } from "react-router-dom";
 import firebase from "./firebase";
@@ -65,6 +65,7 @@ export interface MainIprops {
   player: AnyType;
   source: AnyType;
   fileInitial: ()=> void;
+  musicImg: string[];
 }
 
 // Action 컴포넌트 컨트롤러 type
@@ -76,6 +77,9 @@ export interface ActionIprops {
   playTheMusic: PlayTheMusicType;
   pauseTheMusic: PauseTheMusicType;
   volControl: (vol: string) => void;
+  musicControl: () => void;
+  keyDownMusic: () => void;
+  play: boolean;
 }
 
 // musiclist.tsx
@@ -122,6 +126,9 @@ function App() {
         alert("가입 실패");
       });
   };
+
+  // 노래 앨범 이미지.
+  const [musicImg, setMusicImg] = useState<MainIprops['musicImg']>(['./images/youth!.jpg', './images/youth!.jpg', './images/humidifier.jpg']);
 
   // firebase에서 음악 받아온 보관소.
   const [music, setMusic] = useState<MusicType>([]);
@@ -233,14 +240,35 @@ function App() {
   }
   }
 
+  // 재생, 정지 아이콘.
+  const [play, setPlay] = useState<ActionIprops['play']>(false);
+
+  const musicControl = function() {
+    setPlay(!play);
+  }
+
   // Action 컴포넌트 컨트롤러 플레이 함수.
   const playTheMusic: PlayTheMusicType = function() {
     // player.current.load();
     player.current.play();
+
   }
   const pauseTheMusic: PauseTheMusicType = function() {
     // player.current.load();
     player.current.pause();
+  }
+    
+  const keyDownMusic: ActionIprops['keyDownMusic'] = function() {
+    const e:KeyboardEvent = window.event as KeyboardEvent;
+    if (e.key === 'Enter') {
+      setPlay(!play); 
+      if (play === true) {
+        player.current.play();
+      }
+      if (play === false) {
+        player.current.pause();
+      }
+    }
   }
 
   // 음악 저장하고 체크하는 버튼state.
@@ -317,7 +345,7 @@ function App() {
 
   return (
     <div className="App">
-      <Nav player={player} fileInitial={fileInitial} source={source} num={num} nextNum={nextNum} music={music} />
+      <Nav musicImg={musicImg} player={player} fileInitial={fileInitial} source={source} num={num} nextNum={nextNum} music={music} />
       <Route exact path="/">
         <Login login={login} account={account} onChange={onChange} />
       </Route>
@@ -329,17 +357,22 @@ function App() {
         />
       </Route>
       <Route path="/main">
-        <Main fileInitial={fileInitial}
+        <Main 
+        fileInitial={fileInitial}
+        musicImg={musicImg}
           source={source} 
           player={player} 
           num={num} 
           nextNum={nextNum} 
           music={music} />
         <Actions 
+        play={play}
+        musicControl={musicControl}
         playTheMusic={playTheMusic} 
         pauseTheMusic={pauseTheMusic} 
         changeMusic={changeMusic}
         volControl={volControl}
+        keyDownMusic={keyDownMusic}
          />
       </Route>
 
@@ -458,7 +491,6 @@ const Nav: React.FC<MainIprops> = function (props): JSX.Element {
 };
 
 const Actions: React.FC<ActionIprops> = function (props): JSX.Element {
-  const [play, setPlay] = useState(false);
   const up:string = 'up';
   const down:string = 'down';
   
@@ -479,10 +511,10 @@ const Actions: React.FC<ActionIprops> = function (props): JSX.Element {
           }}
           className="fas fa-chevron-left"
         ></i>
-        {play ? (
+        {props.play ? (
           <i
             onClick={() => {
-              setPlay(!play);
+              props.musicControl();
               props.pauseTheMusic();
               // 누르면 오디오 플레이 버튼 조작하기.
             }}
@@ -491,7 +523,7 @@ const Actions: React.FC<ActionIprops> = function (props): JSX.Element {
         ) : (
           <i
             onClick={() => {
-              setPlay(!play);
+              props.musicControl();
               props.playTheMusic();
             }}
             className="fas fa-play play-btn play"
