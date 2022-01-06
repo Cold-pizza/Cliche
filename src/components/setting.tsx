@@ -11,13 +11,6 @@ const Setting: React.FC<SettingIprops> = function (props): JSX.Element {
       <ul>
         <li
           onClick={() => {
-            history.push("/setting/version");
-          }}
-        >
-          버전정보
-        </li>
-        <li
-          onClick={() => {
             history.push("/setting/musiclist");
           }}
         >

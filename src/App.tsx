@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import "./App.scss";
 import { Route, withRouter, useHistory } from "react-router-dom";
 import firebase from "./firebase";
@@ -8,7 +8,6 @@ import SignUp from "./components/signup";
 import Login from "./components/login";
 import Main from "./components/main";
 import Setting from "./components/setting";
-import Version from "./components/version";
 import MusicList from "./components/musiclist";
 import AddMusic from "./components/addMusic";
 
@@ -378,11 +377,6 @@ function App() {
 
       <Route exact path="/setting">
         <Setting logout={logOut} />
-      </Route>
-
-      {/* setting */}
-      <Route path="/setting/version">
-        <Version />
       </Route>
 
       <Route path="/setting/addmusic/:id">
