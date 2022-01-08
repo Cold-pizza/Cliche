@@ -27,6 +27,8 @@ type MusicType = {
 }[];
 type AnyType = any;
 
+type MusicImg = string[];
+
 // 함수 type
 type OnChangeType = (e: React.ChangeEvent<HTMLInputElement>) => void;
 type CreateUserType = (email: string, password: string) => void;
@@ -64,7 +66,7 @@ export interface MainIprops {
   player: AnyType;
   source: AnyType;
   fileInitial: ()=> void;
-  musicImg: string[];
+  musicImg: MusicImg;
 }
 
 // Action 컴포넌트 컨트롤러 type
@@ -91,6 +93,7 @@ export interface MusicListIprops {
   removeMusic: (id:number) => void;
   fileRef: any;
   musicFileName: string;
+  musicImg: MusicImg;
 }
 
 // setting.tsx
@@ -127,7 +130,10 @@ function App() {
   };
 
   // 노래 앨범 이미지.
-  const [musicImg, setMusicImg] = useState<MainIprops['musicImg']>(['./images/youth!.jpg', './images/youth!.jpg', './images/humidifier.jpg']);
+  const [musicImg, setMusicImg] = useState<MusicImg>([
+    'https://github.com/cold-pizza/cliche/blob/master/public/images/youth!.jpg?raw=true', 
+  'https://github.com/cold-pizza/cliche/blob/master/public/images/youth!.jpg?raw=true', 
+  'https://github.com/cold-pizza/cliche/blob/master/public/images/humidifier.jpg?raw=true']);
 
   // firebase에서 음악 받아온 보관소.
   const [music, setMusic] = useState<MusicType>([]);
@@ -315,13 +321,13 @@ function App() {
           console.log("업로드 성공!");
           setMusicFileName(null);
           setOn(!on);
-
+          let musicName = musicFile.name.split('-')[1];
           // firestore에 text로 저장.
           const db = firebase.firestore();
           db.collection("playList")
             .doc(musicFile.name)
             .set({
-              title: musicFile.name.split("-")[1],
+              title: musicName.split('.')[0],
               singer: musicFile.name.split("-")[0],
               url: url,
               active: false,
@@ -392,6 +398,7 @@ function App() {
           removeModal={removeModal}
           removeMusic={removeMusic}
           musicFileName={musicFileName}
+          musicImg={musicImg}
         />
       </Route>
     </div>

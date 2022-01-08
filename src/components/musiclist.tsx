@@ -9,11 +9,13 @@ const MusicList: React.FC<MusicListIprops> = function (props): JSX.Element {
 
   return (
     <div id="music-list">
-      {props.music.map(({ title, singer, id }) => {
+      {props.music.map(({ title, singer, id }, i) => {
         return (
           <section className="item">
             <div className="sing-info">
-              <div className="image"></div>
+              <div className="image">
+                <img src={props.musicImg[i]} alt={props.musicImg[i]} />
+              </div>
               <div> 
                 <p>{title}</p>
                 <span>{singer}</span>
