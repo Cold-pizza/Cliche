@@ -131,6 +131,7 @@ function App() {
 
   // 노래 앨범 이미지.
   const [musicImg, setMusicImg] = useState<MusicImg>([
+    'https://github.com/cold-pizza/cliche/blob/master/public/images/dive.jpg?raw=true',
     'https://github.com/cold-pizza/cliche/blob/master/public/images/youth!.jpg?raw=true', 
   'https://github.com/cold-pizza/cliche/blob/master/public/images/youth!.jpg?raw=true', 
   'https://github.com/cold-pizza/cliche/blob/master/public/images/humidifier.jpg?raw=true']);
@@ -244,6 +245,7 @@ function App() {
     return false;
   }
   }
+
 
   // 재생, 정지 아이콘.
   const [play, setPlay] = useState<ActionIprops['play']>(false);
