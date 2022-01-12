@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./App.scss";
 import { Route, withRouter, useHistory } from "react-router-dom";
 import firebase from "./firebase";
@@ -108,8 +108,36 @@ export interface AddMusicIprops {
 
 // App Component
 function App() {
+
   const history = useHistory();
   const [account, setAccount] = useState<AccountType>({ email: "", password: "" });
+  
+  // firebase에서 음악 받아온 보관소.
+  const [music, setMusic] = useState<MusicType>([]);
+
+
+  useEffect(() => {
+    setMusic(JSON.parse(localStorage.getItem('music')));
+  }, [])
+
+  useEffect(() => {
+    async function getMusic() {
+      let arr: { id:number; title: string; singer: string; url: string; active: boolean; }[] = [];
+      await firebase
+      .firestore()
+      .collection("playList")
+      .get().then((snapshot) => {
+        snapshot.forEach((doc:DocumentData) => {
+          return arr.push(doc.data());
+        });
+      });
+      await setMusic(arr);
+      await localStorage.setItem('music', JSON.stringify(arr));
+    }
+    getMusic();
+  }, [firebase.firestore().collection('playList')])
+
+
 
   // input.value를 account state에 저장.
   const onChange: SignUpIprops["onChange"] = function (e) {
@@ -136,8 +164,6 @@ function App() {
   'https://github.com/cold-pizza/cliche/blob/master/public/images/youth!.jpg?raw=true', 
   'https://github.com/cold-pizza/cliche/blob/master/public/images/humidifier.jpg?raw=true']);
 
-  // firebase에서 음악 받아온 보관소.
-  const [music, setMusic] = useState<MusicType>([]);
 
   // 로그인 함수.
   const login: LoginIprops["login"] = function (email, password) {
@@ -145,7 +171,6 @@ function App() {
       .auth()
       .signInWithEmailAndPassword(email, password)
       .then(async (res) => {
-        console.log(res)
         setAccount({ email: "", password: "" });
         // 로그인 성공하면 데이터 불러오는 함수.
         async function getMusic() {
@@ -159,6 +184,7 @@ function App() {
             });
           });
           await setMusic(arr);
+          await localStorage.setItem('music', JSON.stringify(arr));
         }
        await getMusic();
         console.log("로그인성공!");
@@ -175,7 +201,7 @@ function App() {
       .auth()
       .signOut()
       .then((res) => {
-        console.log(res)
+        localStorage.clear();
         console.log("로그아웃 하셨습니다.");
         setOn(!on);
         history.replace("/");
@@ -333,10 +359,10 @@ function App() {
               singer: musicFile.name.split("-")[0],
               url: url,
               active: false,
-              id: nextId,
+              id: music.length,
             });
         });
-        setNextId(nextId + 1);
+
       }
     );
   };
