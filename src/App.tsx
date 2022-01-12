@@ -120,6 +120,11 @@ function App() {
     setMusic(JSON.parse(localStorage.getItem('music')));
   }, [])
 
+  // 음악 id.
+  let [nextId, setNextId] = useState<number>(0);
+
+  // 노래추가하면 자동으로 리스트추가.
+  // 새로고침해야해서 다시 손봐야 함.
   useEffect(() => {
     async function getMusic() {
       let arr: { id:number; title: string; singer: string; url: string; active: boolean; }[] = [];
@@ -135,7 +140,7 @@ function App() {
       await localStorage.setItem('music', JSON.stringify(arr));
     }
     getMusic();
-  }, [firebase.firestore().collection('playList')])
+  }, [nextId])
 
 
 
@@ -201,6 +206,7 @@ function App() {
       .auth()
       .signOut()
       .then((res) => {
+        console.log(res);
         localStorage.clear();
         console.log("로그아웃 하셨습니다.");
         setOn(!on);
@@ -325,8 +331,6 @@ function App() {
     }
   };
 
-  // 음악 id.
-  let [nextId, setNextId] = useState<number>(0);
 
   // 🎵노래 업로드 기능🎵.(firestore에 text로 저장하기)
   const upLoadMusic: UpLoadingType = function () {
@@ -344,7 +348,7 @@ function App() {
         console.log("실패사유: ", error);
       },
       // 성공시 동작하는 함수.
-      () => {
+      async () => {
         upLoading.snapshot.ref.getDownloadURL().then((url) => {
           console.log("업로드 성공!");
           setMusicFileName(null);
@@ -362,10 +366,12 @@ function App() {
               id: music.length,
             });
         });
-
+        await setNextId(nextId += 1);
+        await console.log(nextId);
       }
     );
   };
+
 
   // 뒤로가기 클릭 시 파일 초기화 하는 함수.
   const fileInitial:MainIprops["fileInitial"] = function() {
