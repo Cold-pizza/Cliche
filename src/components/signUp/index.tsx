@@ -1,8 +1,8 @@
-import { SignUpIprops } from "../App";
+import { SignUpIprops } from "../../types";
 import React from "react";
 import { useHistory } from "react-router-dom";
 
-import "../styles/signup.scss";
+import "./style.scss";
 
 const SignUp: React.FC<SignUpIprops> = function (props): JSX.Element {
   const email = props.account.email;

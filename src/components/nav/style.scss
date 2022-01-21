@@ -1,0 +1,21 @@
+#nav {
+  padding: 0 20px;
+  position: absolute;
+  top: 40px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+  i {
+    cursor: pointer;
+  }
+  .edits {
+    cursor: pointer;
+    user-select: none;
+  }
+  span {
+    font-size: 20px;
+  }
+}

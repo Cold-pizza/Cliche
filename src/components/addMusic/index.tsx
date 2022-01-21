@@ -1,6 +1,6 @@
-import "../styles/addMusic.scss";
+import "./style.scss";
 import { useState } from "react";
-import { AddMusicIprops } from "../App";
+import { AddMusicIprops } from "../../types";
 
 const AddMusic: React.FC<AddMusicIprops> = function (props): JSX.Element {
   const [check, setCheck] = useState(false);

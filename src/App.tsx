@@ -4,107 +4,36 @@ import { Route, withRouter, useHistory } from "react-router-dom";
 import firebase from "./firebase";
 
 // import Component
-import SignUp from "./components/signup";
+import Nav from './components/nav';
+import Actions from './components/actions';
+import SignUp from "./components/signUp";
 import Login from "./components/login";
 import Main from "./components/main";
 import Setting from "./components/setting";
-import MusicList from "./components/musiclist";
+import MusicList from "./components/musicList";
 import AddMusic from "./components/addMusic";
 
 import { DocumentData } from "@google-cloud/firestore";
 
-//useState type
-type AccountType = {
-  email: string;
-  password: string;
-};
-type MusicType = {
-  id: number;
-  title: string;
-  singer: string;
-  url: string;
-  active: boolean;
-}[];
-type AnyType = any;
+import type { 
+  // interface
+  LoginIprops,
+  AccountType, 
+  SignUpIprops,
+  MainIprops, 
+  ActionIprops, 
+  MusicListIprops, 
+  SettingIprops,
+  // type
+  MusicType,
+  MusicImg,
+  AnyType,
+  PlayTheMusicType,
+  PauseTheMusicType,
+  OnChangeType,
+  UpLoadingType
+ } from './types';
 
-type MusicImg = string[];
-
-// 함수 type
-type OnChangeType = (e: React.ChangeEvent<HTMLInputElement>) => void;
-type CreateUserType = (email: string, password: string) => void;
-type LoginType = (email: string, password: string) => void;
-type LogOutType = () => void;
-type OnModalType = (id: number) => void;
-type UpLoadingType = () => void;
-type PlayTheMusicType = () => void;
-type PauseTheMusicType = () => void;
-
-// export signup.tsx
-export interface SignUpIprops {
-  createUser: CreateUserType;
-  account: AccountType;
-  onChange: OnChangeType;
-}
-
-//export login.tsx
-export interface LoginIprops {
-  login: LoginType;
-  account: AccountType;
-  onChange: OnChangeType;
-}
-
-//export playlist.tsx
-export interface PlayListIprops {
-  onModal: OnModalType;
-}
-
-// export main.tsx
-export interface MainIprops {
-  num: number;
-  nextNum: number;
-  music: MusicType;
-  player: AnyType;
-  source: AnyType;
-  fileInitial: ()=> void;
-  musicImg: MusicImg;
-}
-
-// Action 컴포넌트 컨트롤러 type
-export interface ActionIprops {
-  changeMusic: {
-    nextMusic: () => void;
-    beforeMusic: () => void;
-  };
-  playTheMusic: PlayTheMusicType;
-  pauseTheMusic: PauseTheMusicType;
-  volControl: (vol: string) => void;
-  musicControl: () => void;
-  keyDownMusic: () => void;
-  play: boolean;
-}
-
-// musiclist.tsx
-export interface MusicListIprops {
-  onChangeMusic: OnChangeType;
-  upLoadMusic: UpLoadingType;
-  on: boolean;
-  music: MusicType;
-  removeModal: (id:number) => void;
-  removeMusic: (id:number) => void;
-  fileRef: any;
-  musicFileName: string;
-  musicImg: MusicImg;
-}
-
-// setting.tsx
-export interface SettingIprops {
-  logout: LogOutType;
-}
-
-// addMusic.tsx
-export interface AddMusicIprops {
-  music: MusicType;
-}
 
 // App Component
 function App() {
@@ -175,7 +104,7 @@ function App() {
      firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
-      .then(async (res) => {
+      .then(async res => {
         setAccount({ email: "", password: "" });
         // 로그인 성공하면 데이터 불러오는 함수.
         async function getMusic() {
@@ -196,7 +125,7 @@ function App() {
        await history.push("/main");
         })
         .catch(() => {
-          console.log("다시 입력해주세요..");
+          console.log("다시 입력해주세요.");
         });
       };
 
@@ -384,7 +313,15 @@ function App() {
 
   return (
     <div className="App">
-      <Nav musicImg={musicImg} player={player} fileInitial={fileInitial} source={source} num={num} nextNum={nextNum} music={music} />
+      <Nav 
+      musicImg={musicImg} 
+      player={player} 
+      fileInitial={fileInitial} 
+      source={source} 
+      num={num} 
+      nextNum={nextNum} 
+      music={music} 
+      />
       <Route exact path="/">
         <Login login={login} account={account} onChange={onChange} />
       </Route>
@@ -438,150 +375,5 @@ function App() {
     </div>
   );
 }
-
-// Nav Components
-const Nav: React.FC<MainIprops> = function (props): JSX.Element {
-  const history = useHistory();
-  const [navList, setNavList] = useState([
-    {
-      id: 0,
-      title: "",
-      site: "/main",
-    },
-    {
-      id: 1,
-      title: "설정",
-      site: "/setting",
-    },
- 
-    {
-      id: 2,
-      title: "버전정보",
-      site: "/setting/version",
-    },
-    {
-      id: 3,
-      title: "앨범",
-      site: "/setting/playlist",
-    },
-    {
-      id: 4,
-      title: "앨범편집",
-      site: "/setting/playlist/:id",
-    },
-    {
-      id: 5,
-      title: "곡 리스트",
-      site: "/setting/musiclist",
-    },
-    {
-      id: 6,
-      title: "앨범노래추가",
-      site: "/setting/addmusic/:id",
-    },
-    {
-      id: 7,
-      title: "앨범추가",
-      site: "/setting/addalbum",
-    }
-  ]);
-  return (
-    <div id="nav">
-      {navList.map((navList) => {
-        return (
-          <Route exact path={navList.site}>
-            <div style={{ width: '20px' }}>
-
-            { navList.site === '/main' ? null:<i
-              onClick={() => {
-                if (navList.site === '/setting/musiclist') {
-                  props.fileInitial();
-                }
-                history.goBack();
-              }}
-              className="fas fa-chevron-left"
-              ></i>}
-              </div>
-            <span>
-              Cliche
-              {/* {navList.site === "/main"
-                ? (navList.title = props.album[props.num].title)
-                : navList.title} */}
-            </span>
-            <div style={{ width: '20px' }}>
-
-            {navList.site === "/main" ?
-              <i
-              onClick={() => {
-                history.push("/setting");
-              }}
-              className="fas fa-cog edits"
-              ></i>  : ( navList.site === "/setting/playlist/:id" ? <p className="edits">완료</p> : null)}
-                  </div>
-          </Route>
-        );
-      })}
-    </div>
-  );
-};
-
-const Actions: React.FC<ActionIprops> = function (props): JSX.Element {
-  const up:string = 'up';
-  const down:string = 'down';
-  
-  return (
-    <div id="actions">
-      <section className="up-btn">
-        <i
-          onClick={() => {
-            props.volControl(up);
-          }}
-          className="fas fa-chevron-up"
-        ></i>
-      </section>
-      <section className="middle-btn">
-        <i
-          onClick={() => {
-            props.changeMusic.beforeMusic();
-          }}
-          className="fas fa-chevron-left"
-        ></i>
-        {props.play ? (
-          <i
-            onClick={() => {
-              props.musicControl();
-              props.pauseTheMusic();
-              // 누르면 오디오 플레이 버튼 조작하기.
-            }}
-            className="fas fa-pause play-btn pause"
-          ></i>
-        ) : (
-          <i
-            onClick={() => {
-              props.musicControl();
-              props.playTheMusic();
-            }}
-            className="fas fa-play play-btn play"
-          ></i>
-        )}
-
-        <i
-          onClick={() => {
-            props.changeMusic.nextMusic();
-          }}
-          className="fas fa-chevron-right"
-        ></i>
-      </section>
-      <section className="bottom-btn">
-        <i
-          onClick={() => {
-            props.volControl(down);
-          }}
-          className="fas fa-chevron-down"
-        ></i>
-      </section>
-    </div>
-  );
-};
 
 export default withRouter(App);

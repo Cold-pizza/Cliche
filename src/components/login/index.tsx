@@ -1,7 +1,7 @@
-import "../styles/login.scss";
-import firebase from "../firebase";
+import "./style.scss";
+import firebase from "../../firebase";
 import { Link } from "react-router-dom";
-import { LoginIprops } from "../App";
+import { LoginIprops } from "../../types";
 import styled from "styled-components";
 const StyledLink = styled(Link)`
   test-decoration: none;

@@ -1,6 +1,6 @@
-import "../styles/main.scss";
+import "./style.scss";
 import { useEffect } from "react";
-import { MainIprops } from "../App";
+import { MainIprops } from "../../types";
 
 
 const Main: React.FC<MainIprops> = function (props): JSX.Element {

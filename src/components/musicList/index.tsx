@@ -1,5 +1,5 @@
-import "../styles/musiclist.scss";
-import { MusicListIprops } from "../App";
+import "./style.scss";
+import { MusicListIprops } from "../../types";
 import { useState } from "react";
 
 

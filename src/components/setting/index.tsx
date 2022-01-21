@@ -1,7 +1,7 @@
-import "../styles/setting.scss";
+import "./style.scss";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { SettingIprops } from "../App";
+import { SettingIprops } from "../../types";
 
 const Setting: React.FC<SettingIprops> = function (props): JSX.Element {
   const history = useHistory();
