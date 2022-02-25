@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./App.scss";
 import { Route, withRouter, useHistory } from "react-router-dom";
 import firebase from "./firebase";
@@ -35,7 +35,7 @@ import type {
  } from './types';
 
 
-// App Component
+
 function App() {
 
   const history = useHistory();
@@ -92,27 +92,24 @@ function App() {
   };
 
   // 노래 앨범 이미지.
-  const [musicImg, setMusicImg] = useState<MusicImg>([
+  const musicImg:MusicImg = [
     'https://github.com/cold-pizza/cliche/blob/master/public/images/dive.jpg?raw=true',
     'https://github.com/cold-pizza/cliche/blob/master/public/images/youth!.jpg?raw=true', 
   'https://github.com/cold-pizza/cliche/blob/master/public/images/youth!.jpg?raw=true', 
-  'https://github.com/cold-pizza/cliche/blob/master/public/images/humidifier.jpg?raw=true']);
-
+  'https://github.com/cold-pizza/cliche/blob/master/public/images/humidifier.jpg?raw=true'
+  ];
 
   // 로그인 함수.
-  const login: LoginIprops["login"] = function (email, password) {
+  const login: LoginIprops["login"] = function (login) {
+    const { email, password } = login;
      firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
       .then(async res => {
-        setAccount({ email: "", password: "" });
         // 로그인 성공하면 데이터 불러오는 함수.
         async function getMusic() {
           let arr: { id:number; title: string; singer: string; url: string; active: boolean; }[] = [];
-          await firebase
-          .firestore()
-          .collection("playList")
-          .get().then((snapshot) => {
+          await firebase.firestore().collection("playList").get().then((snapshot) => {
             snapshot.forEach((doc:DocumentData) => {
               return arr.push(doc.data());
             });
@@ -120,9 +117,9 @@ function App() {
           await setMusic(arr);
           await localStorage.setItem('music', JSON.stringify(arr));
         }
-       await getMusic();
+        getMusic();
         console.log("로그인성공!");
-       await history.push("/main");
+        history.push("/main");
         })
         .catch(() => {
           console.log("다시 입력해주세요.");
@@ -195,12 +192,13 @@ function App() {
 
   // 음악 볼륨 설정 함수.
   const volControl:ActionIprops['volControl'] = function(vol) {
-    if (vol === 'up' && player.current.volume < 1) {
-    player.current.volume  += 0.1;
-    console.log(player.current.volume);
-  } else if (vol === 'down' && player.current.volume > 0.11) {
-      player.current.volume -= 0.1;
-      console.log(player.current.volume);
+    const currentVol = player.current.volume;
+    if (vol === 'up' && currentVol < 1) {
+    let upVol = player.current.volume  += 0.1;
+    console.log(upVol.toFixed(1));
+  } else if (vol === 'down' && currentVol > 0.11) {
+      let downVol = player.current.volume -= 0.1;
+      console.log(downVol.toFixed(1));
   } else {
     alert('최대 입니다.')
     return false;

@@ -17,7 +17,7 @@ export  type MusicImg = string[];
   // 함수 type
   export  type OnChangeType = (e: React.ChangeEvent<HTMLInputElement>) => void;
   export  type CreateUserType = (email: string, password: string) => void;
-  export  type LoginType = (email: string, password: string) => void;
+  export  type LoginType = (login: {email: string, password: string}) => void;
   export  type LogOutType = () => void;
   export  type OnModalType = (id: number) => void;
   export  type UpLoadingType = () => void;
