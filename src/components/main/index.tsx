@@ -1,8 +1,10 @@
 import "./style.scss";
 import { useEffect } from "react";
 import { MainIprops } from "../../types";
+import { useSelector } from "react-redux";
 
 const Main: React.FC<MainIprops> = function (props): JSX.Element {
+    // const music = useSelector(state => state.initialReducer.music);
     // 다음 곡, 이전 곡 누를 때마다 audio src 변경.
     useEffect(() => {
         if (props.music.length !== 0) {

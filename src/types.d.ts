@@ -25,7 +25,8 @@ export type OnChangeType = (e: React.ChangeEvent<HTMLInputElement>) => void;
 export type CreateUserType = (email: string, password: string) => void;
 export type LoginType = (
     login: { email: string; password: string },
-    setMusic: SetStateAction
+    setMusic: SetStateAction,
+    dispatch: Dispatch
 ) => void;
 export type LogOutType = () => void;
 export type OnModalType = (id: number) => void;

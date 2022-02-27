@@ -2,7 +2,7 @@ import { DocumentData } from "@google-cloud/firestore";
 import firebase from "firebase";
 import { LoginIprops } from "../types";
 
-const login: LoginIprops["login"] = function (login, setMusic) {
+const login: LoginIprops["login"] = function (login, setMusic, dispatch) {
     const { email, password } = login;
     firebase
         .auth()
@@ -28,6 +28,7 @@ const login: LoginIprops["login"] = function (login, setMusic) {
                     });
                 setMusic(arr);
                 localStorage.setItem("music", JSON.stringify(arr));
+                dispatch({ type: "", payload: arr });
             }
             getMusic();
             console.log("로그인성공!");

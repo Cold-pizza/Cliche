@@ -5,6 +5,7 @@ import firebase from "../../firebase";
 import onChange from "../../controller/onChange";
 import loginFn from "../../controller/login";
 import styled from "styled-components";
+import { useDispatch } from "react-redux";
 import "./style.scss";
 const StyledLink = styled(Link)`
     test-decoration: none;
@@ -16,6 +17,7 @@ type LoginType = {
 };
 
 const Login: React.FC<LoginIprops> = function (props): JSX.Element {
+    const dispatch = useDispatch();
     const [login, setLogin] = useState<LoginType>({ email: "", password: "" });
     const history = useHistory();
     return (
@@ -38,7 +40,7 @@ const Login: React.FC<LoginIprops> = function (props): JSX.Element {
                 />
                 <button
                     onClick={() => {
-                        loginFn(login, props.setMusic);
+                        loginFn(login, props.setMusic, dispatch);
                         setLogin({ email: "", password: "" });
                         history.push("/main");
                     }}
