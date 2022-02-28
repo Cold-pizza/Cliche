@@ -1,14 +1,13 @@
 import { DocumentData } from "@google-cloud/firestore";
 import firebase from "firebase";
-import { LoginIprops } from "../types";
+import { LoginType } from "../types";
 
-const login: LoginIprops["login"] = function (login, setMusic, dispatch) {
+const login: LoginType = function (login, setMusic, dispatch) {
     const { email, password } = login;
     firebase
         .auth()
         .signInWithEmailAndPassword(email, password)
-        .then(async (res) => {
-            // 로그인 성공하면 데이터 불러오는 함수.
+        .then(async () => {
             async function getMusic() {
                 let arr: {
                     id: number;

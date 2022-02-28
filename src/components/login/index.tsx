@@ -6,19 +6,19 @@ import onChange from "../../controller/onChange";
 import loginFn from "../../controller/login";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
+import { LoginInputType } from "../../types";
 import "./style.scss";
 const StyledLink = styled(Link)`
     test-decoration: none;
     color: black;
 `;
-type LoginType = {
-    email: string;
-    password: string;
-};
 
 const Login: React.FC<LoginIprops> = function (props): JSX.Element {
     const dispatch = useDispatch();
-    const [login, setLogin] = useState<LoginType>({ email: "", password: "" });
+    const [login, setLogin] = useState<LoginInputType>({
+        email: "",
+        password: "",
+    });
     const history = useHistory();
     return (
         <div id="login">

@@ -1,18 +1,17 @@
 import "./style.scss";
 import { useEffect } from "react";
-import { MainIprops } from "../../types";
-import { useSelector } from "react-redux";
+import { MainIprops, MusicType } from "../../types";
+import { RootStateOrAny, useSelector } from "react-redux";
 
 const Main: React.FC<MainIprops> = function (props): JSX.Element {
-    // const music = useSelector(state => state.initialReducer.music);
-    // 다음 곡, 이전 곡 누를 때마다 audio src 변경.
+    const musicList = useSelector<RootStateOrAny, MusicType>(
+        (state) => state.initialReducer.music
+    );
     useEffect(() => {
         if (props.music.length !== 0) {
             props.source.current.src = props.music[props.nextNum].url;
         }
     });
-    // console.log(props.player.controls);
-    // console.log(props.player.current.duration);
     return (
         <div id="main">
             <section className="display-music">
@@ -23,14 +22,10 @@ const Main: React.FC<MainIprops> = function (props): JSX.Element {
                     />
                 </div>
                 <span className="title">
-                    {props.music.length === 0
-                        ? null
-                        : props.music[props.nextNum].title}
+                    {musicList ? musicList[props.nextNum].title : null}
                 </span>
                 <span className="singer">
-                    {props.music.length === 0
-                        ? null
-                        : props.music[props.nextNum].singer}
+                    {musicList ? musicList[props.nextNum].singer : null}
                 </span>
             </section>
             <div className="time-line">

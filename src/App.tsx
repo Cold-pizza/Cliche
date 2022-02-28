@@ -17,7 +17,6 @@ import { DocumentData } from "@google-cloud/firestore";
 
 import type {
     // interface
-    LoginIprops,
     AccountType,
     SignUpIprops,
     MainIprops,
@@ -102,43 +101,6 @@ function App() {
         "https://github.com/cold-pizza/cliche/blob/master/public/images/youth!.jpg?raw=true",
         "https://github.com/cold-pizza/cliche/blob/master/public/images/humidifier.jpg?raw=true",
     ];
-
-    // 로그인 함수.
-    const login: LoginIprops["login"] = function (login) {
-        const { email, password } = login;
-        firebase
-            .auth()
-            .signInWithEmailAndPassword(email, password)
-            .then(async (res) => {
-                // 로그인 성공하면 데이터 불러오는 함수.
-                async function getMusic() {
-                    let arr: {
-                        id: number;
-                        title: string;
-                        singer: string;
-                        url: string;
-                        active: boolean;
-                    }[] = [];
-                    await firebase
-                        .firestore()
-                        .collection("playList")
-                        .get()
-                        .then((snapshot) => {
-                            snapshot.forEach((doc: DocumentData) => {
-                                return arr.push(doc.data());
-                            });
-                        });
-                    await setMusic(arr);
-                    await localStorage.setItem("music", JSON.stringify(arr));
-                }
-                getMusic();
-                console.log("로그인성공!");
-                history.push("/main");
-            })
-            .catch(() => {
-                console.log("다시 입력해주세요.");
-            });
-    };
 
     //로그아웃 함수.
     const logOut: SettingIprops["logout"] = function () {
@@ -335,12 +297,7 @@ function App() {
                 music={music}
             />
             <Route exact path="/">
-                <Login
-                    login={login}
-                    setMusic={setMusic}
-                    account={account}
-                    onChange={onChange}
-                />
+                <Login setMusic={setMusic} />
             </Route>
             <Route path="/signup">
                 <SignUp

@@ -2,7 +2,10 @@ export interface InintalStateIprops {
     music: null | [];
 }
 
-type ReducerType = (state: {}, action: { type: {}; payload: {} }) => void;
+type ReducerType = (
+    state: InintalStateIprops,
+    action: { type: {}; payload: {} }
+) => void;
 
 const initialState: InintalStateIprops = {
     music: null,

@@ -1,8 +1,4 @@
-import { RouteComponentProps } from "react-router";
-import {
-    ReactNode,
-    SetStateAction,
-} from "react-router/node_modules/@types/react";
+import { SetStateAction } from "react-router/node_modules/@types/react";
 
 //useState type
 export type AccountType = {
@@ -19,6 +15,11 @@ export type MusicType = {
 export type AnyType = any;
 
 export type MusicImg = string[];
+
+type LoginInputType = {
+    email: string;
+    password: string;
+};
 
 // 함수 type
 export type OnChangeType = (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -43,9 +44,6 @@ export interface SignUpIprops {
 
 //export login.tsx
 export interface LoginIprops {
-    login: LoginType;
-    account: AccountType;
-    onChange: OnChangeType;
     setMusic: SetStateAction;
 }
 
