@@ -1,6 +1,7 @@
 # [Cliche](https://cold-pizza.github.io/cliche/)
 
 -   웹앱 mp3플레이어 입니다.
+-   싱글 토이 프로젝트.
 
 ## Skill
 
